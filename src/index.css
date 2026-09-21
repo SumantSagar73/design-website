@@ -85,6 +85,12 @@ ol {
     radial-gradient(16% 40% at 100% 34%, rgba(196, 204, 250, 0.55), transparent 72%),
     radial-gradient(40% 26% at 62% 104%, rgba(214, 222, 255, 0.55), transparent 70%),
     linear-gradient(180deg, #f5f6fc 0%, #f2f3fa 60%, #eceef9 100%);
+  /* The hero's atmosphere and the page background beneath it resolve to
+     different colours, so where the hero ended they met as a visible edge.
+     Fading the atmosphere out over the lower half lets the page background
+     take over gradually instead. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
 }
 
 .ribbon {
@@ -1060,11 +1066,27 @@ ol {
 }
 
 .try-section-wrapper {
+  position: relative;
   padding: 80px clamp(20px, 3.5vw, 46px) 60px;
+  /* The flat panel colour lives on ::before, not here, so it can be faded at
+     both edges. Painted directly it met the page gradient as a hard line at
+     the top and bottom of the section. */
+}
+
+.try-section-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background: #FAFBFB;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 87%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 87%, transparent 100%);
+  pointer-events: none;
 }
 
 .try-outer-container {
+  position: relative;
+  z-index: 1;
   max-width: 1520px;
   margin: 0 auto;
 }

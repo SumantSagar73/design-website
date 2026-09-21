@@ -1,4 +1,4 @@
 /* MyOperator design-system tokens + Tailwind utilities.
    Preflight is disabled in tailwind.config.js so this never touches the
    hand-written marketing CSS in src/index.css. */
-@import '../../../Code/storybook-npm/src/index.css';
+@import '../vendor/ds/tokens.css';

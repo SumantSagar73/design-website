@@ -16,8 +16,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@sb/*": ["../Code/storybook-npm/src/*"],
-      "@/*": ["../Code/storybook-npm/src/*"]
+      "@sb/*": ["./src/vendor/ds/*"],
+      "@/*": ["./src/vendor/ds/*"]
     },
 
     /* Linting */
@@ -26,5 +26,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "../Code/storybook-npm/src/**/*.d.ts"]
+  "include": ["src"]
 }

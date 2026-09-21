@@ -1,8 +1,8 @@
-import sbConfig from '../Code/storybook-npm/tailwind.config.js'
+import sbConfig from './src/vendor/ds/tailwind.config.js'
 
 /**
  * Tailwind is only here to render the MyOperator Storybook components
- * (imported from ../Code/storybook-npm/src) inside the showcase page.
+ * (vendored in src/vendor/ds) inside the showcase page.
  *
  * Preflight is OFF on purpose: the marketing site is hand-written CSS
  * (src/index.css) and Tailwind's reset would flatten the hero.
@@ -15,6 +15,5 @@ export default {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
-    '../Code/storybook-npm/src/**/*.{js,ts,jsx,tsx}',
   ],
 }
