@@ -1,0 +1,167 @@
+/* ------------------------------------------------------------------ *
+ * Hero Lab — an editable duplicate of the hero, for trying designs on.
+ *
+ * Everything here is namespaced. The layout's own elements use `hero-lab__*`
+ * class names rather than the live hero's `.hero` / `.center` / `.headline`,
+ * and the RibbonCanvas internals (which the component owns, not us) are
+ * overridden as descendants of `.hero-lab`.
+ *
+ * The point of that is one-way isolation in both directions: nothing you
+ * change in this file can reach the hero on the home page, and nothing that
+ * changes in src/index.css will quietly restyle this.
+ *
+ * Values below are copied from src/index.css as of this file's creation, so
+ * the lab starts out pixel-identical to the real hero.
+ * ------------------------------------------------------------------ */
+
+.hero-lab {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Almost-invisible atmosphere: cool, lavender and peach haze near the orbit. */
+.hero-lab__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(34% 44% at 50% 46%, rgba(255, 255, 255, 0.9), transparent 72%),
+    radial-gradient(18% 34% at 0% 46%, rgba(255, 206, 186, 0.62), transparent 72%),
+    radial-gradient(16% 30% at 6% 60%, rgba(255, 196, 226, 0.5), transparent 72%),
+    radial-gradient(20% 36% at 2% 78%, rgba(168, 198, 255, 0.62), transparent 72%),
+    radial-gradient(22% 30% at 18% 92%, rgba(184, 200, 255, 0.55), transparent 72%),
+    radial-gradient(16% 40% at 100% 34%, rgba(196, 204, 250, 0.55), transparent 72%),
+    radial-gradient(40% 26% at 62% 104%, rgba(214, 222, 255, 0.55), transparent 70%),
+    linear-gradient(180deg, #f5f6fc 0%, #f2f3fa 60%, #eceef9 100%);
+}
+
+/* The fluid field, drawn over the static gradient above. Same z-index band:
+   it is background, and must stay under the ribbon (z-index 1) and the
+   headline (z-index 2). */
+.hero-lab__fluid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --- RibbonCanvas internals ---------------------------------------------
+   These class names belong to src/ribbon/RibbonCanvas.tsx, so they are
+   scoped under .hero-lab rather than renamed. */
+
+.hero-lab .ribbon {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  perspective: 1600px;
+  pointer-events: none;
+}
+
+.hero-lab .ribbon-box {
+  position: relative;
+  min-width: 0;
+  width: min(87vw, 139vh);
+  aspect-ratio: 1672 / 941;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hero-lab .ribbon-box > div,
+.hero-lab .ribbon-canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* --- headline ----------------------------------------------------------- */
+
+.hero-lab__center {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hero-lab__headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(60px, 8.2vw, 132px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+
+.hero-lab__line {
+  display: block;
+  padding: 0 0.04em;
+}
+
+.hero-lab__orbit {
+  /* deep indigo -> periwinkle -> soft lavender; never neon purple */
+  background: linear-gradient(100deg, #3c4a9e 0%, #5a67c4 38%, #7f82de 70%, #a39ded 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.03em;
+}
+
+.hero-lab__sub {
+  margin: clamp(14px, 1.8vw, 24px) 0 0;
+  max-width: 350px;
+  font-size: clamp(17px, 1.6vw, 25px);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  color: #22252e;
+}
+
+@media (max-width: 720px) {
+  .hero-lab .ribbon-box {
+    width: 104vw;
+  }
+}
+
+/* --- lab chrome ---------------------------------------------------------
+   Not part of the hero: a small marker so you always know which page you
+   are on. Delete it freely. */
+
+.hero-lab-back {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 11, 16, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  font-size: 13px;
+  letter-spacing: -0.012em;
+  color: #55596a;
+  transition: color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-lab-back:hover {
+  color: #0a0b10;
+}

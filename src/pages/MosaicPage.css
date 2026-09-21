@@ -1,0 +1,345 @@
+/* ------------------------------------------------------------------ *
+ * Mosaic showcase — "Every detail, deliberate."
+ *
+ * Colour comes from the hero (src/index.css + src/three/OrbitScene.tsx):
+ * a cool off-white canvas and the ribbon's pale-blue / lavender / pink /
+ * peach bloom. Everything else is restraint — one type scale, one radius,
+ * one shadow recipe, generous air. The cards are plain so the components
+ * inside them are the only thing with colour.
+ * ------------------------------------------------------------------ */
+
+.mosaic-page {
+  --m-ink: #06070c;
+  --m-ink-2: #55596a;
+  --m-ink-3: #9297a6;
+  --m-edge: rgba(9, 10, 16, 0.1);
+  --m-edge-strong: rgba(9, 10, 16, 0.2);
+  --m-radius: 16px;
+  /* One easing everywhere: fast out of the gate, long settle. */
+  --m-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--m-ink);
+  font-family: var(--font);
+  background: #f6f7fb;
+}
+
+.mosaic-atmosphere {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(28% 34% at 50% 38%, rgba(255, 255, 255, 0.94), transparent 70%),
+    radial-gradient(20% 30% at 3% 30%, rgba(255, 206, 186, 0.5), transparent 72%),
+    radial-gradient(18% 28% at 12% 54%, rgba(255, 196, 226, 0.38), transparent 72%),
+    radial-gradient(22% 34% at 0% 80%, rgba(168, 198, 255, 0.48), transparent 72%),
+    radial-gradient(24% 28% at 26% 98%, rgba(196, 204, 250, 0.42), transparent 72%),
+    radial-gradient(18% 38% at 100% 26%, rgba(196, 204, 250, 0.44), transparent 72%),
+    radial-gradient(20% 32% at 97% 72%, rgba(168, 198, 255, 0.4), transparent 72%);
+  animation: mosaic-bloom 44s var(--m-ease) infinite alternate;
+}
+
+@keyframes mosaic-bloom {
+  from { transform: translate3d(-1%, -0.6%, 0) scale(1.02); }
+  to   { transform: translate3d(1%, 1%, 0) scale(1.05); }
+}
+
+/* ------------------------------------------------------------------ head */
+
+.mosaic-head {
+  position: relative;
+  z-index: 2;
+  padding: clamp(26px, 5vh, 56px) var(--gutter) clamp(38px, 7vh, 76px);
+  text-align: center;
+}
+
+.mosaic-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  letter-spacing: -0.012em;
+  color: var(--m-ink-3);
+  transition: color 0.35s var(--m-ease);
+}
+
+.mosaic-back:hover { color: var(--m-ink); }
+
+.mosaic-title {
+  margin: clamp(30px, 6vh, 64px) 0 0;
+  font-size: clamp(40px, 6.6vw, 92px);
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.mosaic-title em {
+  font-style: italic;
+  background: linear-gradient(96deg, #6b7ce0, #a88fd8 40%, #e08fae 70%, #e0a07f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.mosaic-sub {
+  max-width: 56ch;
+  margin: clamp(16px, 2.4vh, 24px) auto 0;
+  font-size: clamp(14px, 1.1vw, 16.5px);
+  line-height: 1.6;
+  letter-spacing: -0.014em;
+  color: var(--m-ink-2);
+}
+
+/* ----------------------------------------------------------- the board */
+
+.mosaic-board {
+  position: relative;
+  z-index: 1;
+  width: min(1460px, 92vw);
+  height: clamp(560px, 74vh, 860px);
+  margin: 0 auto;
+}
+
+/* The animating rectangle. Position rides on transform so it stays on the
+   compositor; only width/height touch layout. */
+.mosaic-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, width, height;
+  /* Keep each cell's layout and painting to itself, so 23 of them resizing
+     at once does not cascade into a whole-page recalculation. */
+  contain: layout paint style;
+}
+
+.mosaic-cell {
+  position: absolute;
+  inset: 6px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 16px 14px;
+  border-radius: var(--m-radius);
+  background: #fff;
+  /* Hairline + two soft layers. No blur, no gradient — the edge is what
+     separates the card from the tinted canvas, nothing else. */
+  box-shadow:
+    inset 0 0 0 1px var(--m-edge),
+    0 1px 2px rgba(9, 10, 16, 0.04),
+    0 10px 26px -14px rgba(9, 10, 16, 0.22);
+  transition: box-shadow 0.45s var(--m-ease);
+}
+
+.mosaic-cell:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--m-edge-strong),
+    0 2px 4px rgba(9, 10, 16, 0.05),
+    0 18px 38px -18px rgba(9, 10, 16, 0.28);
+}
+
+.mosaic-content {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.mosaic-content > * { max-width: 100%; }
+
+.mosaic-tag {
+  position: absolute;
+  top: 11px;
+  left: 14px;
+  z-index: 2;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--m-ink-3);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------- mini content */
+
+.mini-stack {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.mini-center { justify-items: center; }
+
+.mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mini-stat {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+}
+
+.mini-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  letter-spacing: -0.008em;
+  color: var(--m-ink-3);
+}
+
+.mini-value {
+  font-size: clamp(22px, 2vw, 32px);
+  font-weight: 450;
+  letter-spacing: -0.042em;
+  line-height: 1;
+}
+
+.mini-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  letter-spacing: -0.008em;
+  color: #1f858f;
+}
+
+.mini-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 32px;
+  margin-top: 3px;
+}
+
+.mini-spark span {
+  flex: 1;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(107, 124, 224, 0.8), rgba(168, 198, 255, 0.3));
+  transform-origin: bottom;
+  animation: mini-spark-rise 3.2s var(--m-ease) infinite alternate;
+}
+
+@keyframes mini-spark-rise {
+  from { transform: scaleY(0.75); }
+  to   { transform: scaleY(1); }
+}
+
+.mini-steps {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.mini-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  letter-spacing: -0.012em;
+  color: var(--m-ink-3);
+  transition: color 0.55s var(--m-ease);
+}
+
+.mini-step-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-step[data-state='done'] { color: var(--m-ink-2); }
+.mini-step[data-state='active'] { color: var(--m-ink); }
+
+.mini-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(9, 10, 16, 0.14);
+  transition: background 0.55s var(--m-ease);
+}
+
+.mini-step[data-state='done'] .mini-dot { background: #27abb8; }
+
+.mini-step[data-state='active'] .mini-dot {
+  background: #6b7ce0;
+  animation: mini-pulse 2s var(--m-ease) infinite;
+}
+
+@keyframes mini-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(107, 124, 224, 0.15); }
+  50%      { box-shadow: 0 0 0 7px rgba(107, 124, 224, 0.05); }
+}
+
+.mini-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.mini-swatches span {
+  aspect-ratio: 1;
+  border-radius: 6px;
+}
+
+/* The one thing small enough for any cell. */
+.mini-token {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(9, 10, 16, 0.16);
+}
+
+/* --------------------------------------------------------------- foot */
+
+.mosaic-foot {
+  position: relative;
+  z-index: 2;
+  padding: clamp(32px, 5vh, 60px) var(--gutter) clamp(48px, 9vh, 110px);
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: -0.012em;
+}
+
+.mosaic-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--m-ink-2);
+  transition: color 0.35s var(--m-ease);
+}
+
+.mosaic-foot a:hover { color: var(--m-ink); }
+
+/* -------------------------------------------------------------- small */
+
+@media (max-width: 860px) {
+  .mosaic-board {
+    width: 94vw;
+    height: clamp(640px, 86vh, 900px);
+  }
+  .mosaic-cell {
+    inset: 4px;
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mosaic-atmosphere,
+  .mini-spark span,
+  .mini-step[data-state='active'] .mini-dot {
+    animation: none;
+  }
+}

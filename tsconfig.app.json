@@ -15,6 +15,10 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "paths": {
+      "@sb/*": ["../Code/storybook-npm/src/*"],
+      "@/*": ["../Code/storybook-npm/src/*"]
+    },
 
     /* Linting */
     "noUnusedLocals": true,
@@ -22,5 +26,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "../Code/storybook-npm/src/**/*.d.ts"]
 }

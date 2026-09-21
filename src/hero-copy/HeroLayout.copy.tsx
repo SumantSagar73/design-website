@@ -12,8 +12,6 @@ const rise: Variants = {
   }),
 }
 
-
-
 type Props = {
   /** Layer behind the headline (the ribbon, or its back half). */
   children?: ReactNode
@@ -25,16 +23,16 @@ type Props = {
   className?: string
 }
 
-/** The shared MyOrbit hero chrome: every version only changes the ribbon layers. */
-export default function HeroLayout({ children, front, textStyle, className }: Props) {
+/**
+ * UNTOUCHED HERO COPY - DO NOT MODIFY.
+ * The shared MyOrbit hero chrome: renders the atmosphere, ribbon, and center headline.
+ */
+export default function HeroLayoutCopy({ children, front, textStyle, className }: Props) {
   return (
     <section className={`hero ${className ?? ''}`} aria-label="MyOrbit">
       <div className="atmosphere" aria-hidden="true" />
 
       {children}
-
-
-
 
       <motion.div className="center" style={textStyle}>
         <h1 className="headline">
@@ -51,8 +49,6 @@ export default function HeroLayout({ children, front, textStyle, className }: Pr
       </motion.div>
 
       {front}
-
-
     </section>
   )
 }
