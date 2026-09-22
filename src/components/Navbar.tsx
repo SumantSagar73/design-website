@@ -16,6 +16,8 @@ const NAV_ITEMS: NavItem[] = [
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState<string>('')
   const [mobileOpen, setMobileOpen] = useState(false)
+  /* Flat full-width bar over the top of the hero; floating card once scrolled. */
+  const [scrolled, setScrolled] = useState(false)
 
   const isScrollingRef = useRef(false)
   const animFrameRef = useRef<number | null>(null)
@@ -106,6 +108,14 @@ export default function Navbar() {
     }
   }, [])
 
+  // Switch between the flush top bar and the floating card
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 24)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
+
   // Scrollspy to detect currently visible section
   useEffect(() => {
     let ticking = false
@@ -156,7 +166,7 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className="navbar-wrapper">
+    <header className={`navbar-wrapper ${scrolled || mobileOpen ? 'is-scrolled' : 'is-top'}`}>
       <nav className="floating-navbar" aria-label="Main Navigation">
         {/* Left: Brand Logo */}
         <button

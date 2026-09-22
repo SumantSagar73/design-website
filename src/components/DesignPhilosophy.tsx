@@ -31,7 +31,9 @@ export default function DesignPhilosophy() {
   // Scroll-driven progress: words appear in direct sync with scroll position
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start 0.85', 'start 0.24'],
+    // Starts as the section enters from the bottom, and is fully revealed by
+    // the time the section is centred in the viewport.
+    offset: ['start end', 'center center'],
   })
 
   return (

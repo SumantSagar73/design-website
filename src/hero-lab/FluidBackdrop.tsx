@@ -4,14 +4,15 @@ import { useEffect, useRef } from 'react'
  * The hero atmosphere, as a moving fluid instead of a fixed set of radial
  * gradients.
  *
- * The palette is exactly the one in hero-lab.css — peach, pink, pale blue,
- * periwinkle, lavender over the same #f5f6fc..#eceef9 base — and the same
- * structure is preserved: near-white through the middle where the headline
- * sits, colour gathering toward the edges. Only the motion is new.
+ * Used by the hero sandbox only. The live hero keeps its static .atmosphere.
  *
- * The flow comes from domain-warped fBm noise: a noise field is used to
- * displace the lookup into itself, twice. That is what gives the slow
- * folding, marbled drift rather than gradients sliding past each other.
+ * It is not an approximation of the hero's background: it rebuilds the exact
+ * `.atmosphere` stack from src/index.css — the same six ellipses, the same
+ * centres, radii and alphas, over the same base sheet — and then reads that
+ * stack at a displaced point. Nothing about the gradient changes; only where
+ * each pixel samples it does. That displacement comes from domain-warped fBm
+ * for the ambient drift, plus the pointer wake, which is why the colour is
+ * carried along rather than tinted over.
  */
 
 const VERT = `
@@ -28,13 +29,20 @@ precision mediump float;
 
 uniform vec2  uRes;
 uniform float uTime;
+/* 1 fades the lower half out, matching the CSS mask on .atmosphere; 0 keeps
+   the canvas fully opaque. Done in the shader because a CSS mask over a WebGL
+   canvas forces a composited layer the browser does not reliably fill — it
+   rendered solid black once scrolled. */
+uniform float uBottomFade;
 
 /* Pointer wake. Each impulse is (x, y, strength) in uv space; strength 0
    means the slot is unused. A short trail of them, rather than one blob at
    the cursor, is what makes a drag read as something pushed through liquid
    instead of a spotlight following the mouse. */
 #define MAX_IMPULSES 12
-#define SWIRL_LIMIT 0.26
+#define SWIRL_LIMIT 0.45
+/* How far the ambient drift displaces the gradient, in uv units. */
+#define FLOW_AMP 0.95
 uniform vec3 uImpulses[MAX_IMPULSES];
 
 /* Palette lifted from .hero-lab__atmosphere, unchanged. */
@@ -78,81 +86,75 @@ float fbm(vec2 p) {
   return v;
 }
 
+/*
+ * One layer of the original CSS stack: an ellipse of constant colour whose
+ * alpha ramps linearly to zero at 72% of its radius, which is what
+ * "radial-gradient(RX% RY% at CX% CY%, rgba(...), transparent 72%)" does.
+ */
+vec3 layer(vec3 col, vec3 tint, vec2 uv, vec2 centre, vec2 radii, float alpha) {
+  float d = length((uv - centre) / radii);
+  return mix(col, tint, alpha * max(0.0, 1.0 - d / 0.72));
+}
+
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
   float aspect = uRes.x / uRes.y;
   vec2 pos = vec2(uv.x * aspect, uv.y);
 
-  /* Accumulate the pointer wake as a displacement of the sample point.
-     Each impulse rotates the sample point around itself, falling off as a
-     gaussian. Displacing the domain rather than tinting the pixel means the
-     colour already there is carried along, which is what sells "fluid". */
+  /* Pointer wake: each impulse rotates the sample point around itself with a
+     gaussian falloff. The perpendicular's magnitude is |d|, so the swirl
+     fades to nothing at the centre rather than spinning about a singularity. */
   vec2 swirl = vec2(0.0);
   for (int i = 0; i < MAX_IMPULSES; i++) {
     vec3 imp = uImpulses[i];
     if (imp.z <= 0.001) continue;
     vec2 d = pos - vec2(imp.x * aspect, imp.y);
-    float fall = exp(-dot(d, d) / 0.045);
-    /* Rotation only. The perpendicular's magnitude is |d|, so the swirl
-       fades to nothing at the centre instead of spinning around a point
-       singularity — a normalised push there is what produced the starburst. */
+    float fall = exp(-dot(d, d) / 0.075);
     swirl += vec2(-d.y, d.x) * fall * imp.z;
   }
-  /* Smooth saturation rather than a hard clamp: overlapping impulses ease
-     toward a ceiling instead of compounding into a visible fold. */
+  /* Smooth saturation, so overlapping impulses ease toward a ceiling instead
+     of compounding into a visible fold. */
   swirl *= SWIRL_LIMIT / (SWIRL_LIMIT + length(swirl));
 
-  vec2 p = (pos + swirl) * 1.55;
-
-  float t = uTime * 0.19;
-
-  /* Domain warping: displace the field by itself, twice. */
+  /* Ambient drift: domain-warped fBm, centred on zero so it displaces the
+     gradient rather than biasing it in one direction. */
+  float t = uTime * 0.12;
+  vec2 p = pos * 1.55;
   vec2 q = vec2(fbm(p + t * 0.35), fbm(p + vec2(5.2, 1.3) - t * 0.28));
-  vec2 r = vec2(
+  vec2 warp = vec2(
     fbm(p + 2.6 * q + vec2(1.7, 9.2) + t * 0.22),
     fbm(p + 2.6 * q + vec2(8.3, 2.8) - t * 0.19)
   );
-  float f = fbm(p + 2.6 * r);
+  /* fBm lands in roughly 0.43..0.67, not 0..1, so it is recentred on its own
+     median before scaling — subtracting 0.5 leaves almost no displacement. */
+  vec2 flow = (warp - 0.57) * FLOW_AMP;
 
-  /* The base sheet, top to bottom. */
-  vec3 col = mix(BASE_TOP, BASE_MID, smoothstep(0.0, 0.6, uv.y));
-  col = mix(col, BASE_BOT, smoothstep(0.6, 1.0, uv.y));
+  /* Where the gradient gets read. */
+  vec2 wuv = uv + flow + vec2(swirl.x / aspect, swirl.y);
 
-  /* Colour laid in by the warped field, in the same order as the original
-     radial stack.
+  /* The hero's .atmosphere, layer for layer. CSS paints the first-listed
+     background on top, so these are applied bottom-up: the base sheet, then
+     each ellipse in reverse order, ending with the white core. The numbers
+     are the same percentages and alphas as in src/index.css. */
+  vec3 col = mix(BASE_TOP, BASE_MID, smoothstep(0.0, 0.6, wuv.y));
+  col = mix(col, BASE_BOT, smoothstep(0.6, 1.0, wuv.y));
 
-     Each window is centred on its own driver's distribution rather than
-     picked by eye. Because smoothstep crosses 0.5 at the window midpoint,
-     the share of the canvas a colour covers is exactly P(driver > midpoint),
-     so the midpoints below are quantiles solved for the coverage we want:
-     cool dominant, warm as visible accents. The drivers are not
-     interchangeable — r.y runs far lower than f or q.y, which is why pink
-     needs a window near 0.44 where blue needs one near 0.59.
-
-     Strengths are set to match the main hero's background: measured off the
-     rendered page, its edges average a mean per-pixel chroma of 18.4, and
-     these land the lab in the same place. Peach and pink carry an extra cut
-     because they were pulling green down and warming the whole field, which
-     the main hero does not do. */
-  col = mix(col, BLUE,  smoothstep(0.51, 0.67, f)       * 0.28); /* ~38% */
-  col = mix(col, LAV,   smoothstep(0.48, 0.64, r.x)     * 0.24); /* ~22% */
-  col = mix(col, PERI,  smoothstep(0.48, 0.65, q.y)     * 0.26); /* ~26% */
-  col = mix(col, PINK,  smoothstep(0.36, 0.52, r.y)     * 0.14); /* ~16% */
-  col = mix(col, PEACH, smoothstep(0.52, 0.68, q.x)     * 0.17); /* ~20% */
-  col = mix(col, PALE,  smoothstep(0.26, 0.42, f * r.x) * 0.24); /* ~22% */
-
-  /* Keep the centre near-white so the headline stays legible — the same
-     job the 34% x 44% white radial did. */
-  float d = length((uv - vec2(0.5, 0.46)) * vec2(aspect, 1.0));
-  col = mix(vec3(1.0), col, smoothstep(0.10, 0.66, d));
-
-  /* Let the very edges gather a little more colour, as the original did. */
-  col = mix(col, col * 0.985 + PALE * 0.03, smoothstep(0.55, 1.05, d));
+  col = layer(col, PALE,  wuv, vec2(0.62, 1.04), vec2(0.40, 0.26), 0.55);
+  col = layer(col, LAV,   wuv, vec2(1.00, 0.34), vec2(0.16, 0.40), 0.55);
+  col = layer(col, PERI,  wuv, vec2(0.18, 0.92), vec2(0.22, 0.30), 0.55);
+  col = layer(col, BLUE,  wuv, vec2(0.02, 0.78), vec2(0.20, 0.36), 0.62);
+  col = layer(col, PINK,  wuv, vec2(0.06, 0.60), vec2(0.16, 0.30), 0.50);
+  col = layer(col, PEACH, wuv, vec2(0.00, 0.46), vec2(0.18, 0.34), 0.62);
+  col = layer(col, vec3(1.0), wuv, vec2(0.50, 0.46), vec2(0.34, 0.44), 0.90);
 
   /* Dither: these gradients are shallow enough to band on 8-bit displays. */
   col += (hash(gl_FragCoord.xy) - 0.5) / 255.0;
 
-  gl_FragColor = vec4(col, 1.0);
+  /* Alpha 1 through the top half, then linear to 0 at the bottom edge — the
+     same ramp as linear-gradient(180deg, #000 0%, #000 50%, transparent 100%).
+     Premultiplied, because the context requests premultiplied alpha. */
+  float fade = mix(1.0, clamp(uv.y / 0.5, 0.0, 1.0), uBottomFade);
+  gl_FragColor = vec4(col * fade, fade);
 }
 `
 
@@ -190,16 +192,30 @@ const FULL_PUSH = 0.016
 
 type Impulse = { x: number; y: number; strength: number }
 
-export default function FluidBackdrop({ className }: { className?: string }) {
+export default function FluidBackdrop({
+  className,
+  bottomFade = false,
+}: {
+  className?: string
+  /** Fade the lower half out, for a hero that has a section beneath it. */
+  bottomFade?: boolean
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
+    // alpha: true matters. With an opaque context the drawing buffer clears
+    // to solid black, so any frame composited between the clear and the draw
+    // shows black — which a CSS mask over the canvas makes very visible. With
+    // alpha, an undrawn buffer is transparent and the static .atmosphere
+    // gradient underneath shows through instead. The shader writes alpha 1,
+    // so a drawn frame is still fully opaque.
     const gl = canvas.getContext('webgl', {
       antialias: false,
-      alpha: false,
+      alpha: true,
+      premultipliedAlpha: true,
       depth: false,
       stencil: false,
       powerPreference: 'low-power',
@@ -233,6 +249,9 @@ export default function FluidBackdrop({ className }: { className?: string }) {
     const uRes = gl.getUniformLocation(program, 'uRes')
     const uTime = gl.getUniformLocation(program, 'uTime')
     const uImpulses = gl.getUniformLocation(program, 'uImpulses[0]')
+    gl.uniform1f(gl.getUniformLocation(program, 'uBottomFade'), bottomFade ? 1 : 0)
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
     // Flat (x, y, strength) triples, uploaded every frame.
     const impulseData = new Float32Array(MAX_IMPULSES * 3)
@@ -390,7 +409,7 @@ export default function FluidBackdrop({ className }: { className?: string }) {
       // hands back the same dead object on remount, leaving an opaque canvas
       // covering the page. The context is released with the canvas anyway.
     }
-  }, [])
+  }, [bottomFade])
 
   return <canvas ref={canvasRef} className={className} aria-hidden="true" />
 }

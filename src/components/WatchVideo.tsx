@@ -1,151 +1,74 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Play, X, Volume2, Sparkles, Film } from 'lucide-react'
+import { motion } from 'framer-motion'
+
+import GlyphArt from './GlyphArt'
+
+/**
+ * The video to play. Set one of these:
+ *  - youtubeId: the id from a YouTube link (youtube.com/watch?v=<id>)
+ *  - src: a direct video file, e.g. '/razorsense.mp4' in public/
+ * With neither set, the poster shows but the play button does nothing.
+ */
+const VIDEO = {
+  youtubeId: '',
+  src: '',
+}
+
+const EASE = [0.22, 1, 0.36, 1] as const
 
 export default function WatchVideo() {
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const hasVideo = Boolean(VIDEO.youtubeId || VIDEO.src)
+
+  const play = () => {
+    if (!hasVideo) {
+      console.warn('[WatchVideo] No video set: add a youtubeId or src in src/components/WatchVideo.tsx')
+      return
+    }
+    setPlaying(true)
+  }
 
   return (
-    <section id="watch-video" className="content-section video-section">
-      <div className="section-container">
-        <div className="section-header">
-          <motion.span
-            className="section-eyebrow"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            04 / Cinematic Showcase
-          </motion.span>
-          <motion.h2
-            className="section-title"
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-          >
-            Watch the Design Philosophy in Motion
-          </motion.h2>
-          <motion.p
-            className="section-lead"
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            A visual and sonic keynote demonstrating how optical physics and agentic interactions
-            converge to create the next paradigm in product design.
-          </motion.p>
-        </div>
-
-        {/* Video Cinema Preview Card */}
-        <div className="video-card-container">
-          <div className="video-preview-card" onClick={() => setIsPlaying(true)}>
-            {/* Ambient background glow */}
-            <div className="video-ambient-glow" />
-
-            {/* Poster graphic with glass overlay */}
-            <div className="video-poster">
-              <div className="poster-backdrop">
-                <div className="poster-orbit-ring" />
-                <div className="poster-headline">
-                  <span>MyOrbit</span>
-                  <small>Agentic Spatial Architecture</small>
-                </div>
-              </div>
-
-              {/* Play Button */}
-              <button
-                className="video-play-btn"
-                aria-label="Play Presentation Video"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsPlaying(true)
-                }}
-              >
-                <div className="play-pulse-ring" />
-                <div className="play-pulse-ring delay" />
-                <Play size={28} className="play-icon" fill="currentColor" />
-              </button>
-
-              {/* Top Badges */}
-              <div className="video-top-badges">
-                <span className="badge-film">
-                  <Film size={13} />
-                  Official Keynote
-                </span>
-                <span className="badge-duration">
-                  <Volume2 size={13} />
-                  Spatial Audio • 03:20
-                </span>
-              </div>
-
-              {/* Bottom Caption */}
-              <div className="video-bottom-caption">
-                <h4>Chapter 01: The Emergence of Autonomous Interfaces</h4>
-                <p>Featuring live demos of optical caustics, gyroscopic breath, and adaptive context routing.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Video Modal Player */}
-        <AnimatePresence>
-          {isPlaying && (
-            <motion.div
-              className="video-modal-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsPlaying(false)}
-            >
-              <motion.div
-                className="video-modal-content"
-                initial={{ scale: 0.94, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.94, opacity: 0, y: 20 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  className="modal-close-btn"
-                  onClick={() => setIsPlaying(false)}
-                  aria-label="Close Video"
-                >
-                  <X size={20} />
-                </button>
-
-                <div className="modal-player-screen">
-                  {/* Simulated High-Res Video Showcase Animation */}
-                  <div className="player-animation-canvas">
-                    <div className="player-orbit-simulation">
-                      <div className="sim-ring outer" />
-                      <div className="sim-ring middle" />
-                      <div className="sim-ring inner" />
-                      <div className="sim-center-text">
-                        <Sparkles size={32} className="sim-icon" />
-                        <h3>MyOrbit in Action</h3>
-                        <p>Living Agentic Interfaces & Spatial Light Physics</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="player-control-strip">
-                    <div className="strip-progress">
-                      <div className="strip-progress-bar" />
-                    </div>
-                    <div className="strip-controls">
-                      <span>01:42 / 03:20</span>
-                      <span>4K Ultra HD • Spatial Audio</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+    <section id="watch-video" className="video-section">
+      <motion.div
+        className="video-frame"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.9, ease: EASE }}
+      >
+        {playing ? (
+          VIDEO.youtubeId ? (
+            <iframe
+              className="video-embed"
+              src={`https://www.youtube-nocookie.com/embed/${VIDEO.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+              title="RazorSense"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+            />
+          ) : (
+            <video className="video-embed" src={VIDEO.src} autoPlay controls playsInline />
+          )
+        ) : (
+          <button type="button" className="video-poster" onClick={play} aria-label="Play the RazorSense video">
+            <GlyphArt className="video-poster__glyph" softness={16} haloBlur={34} />
+            {/* White text with a difference blend: it reads black on the pale
+                poster and turns gold where it crosses the blue glyph. */}
+            <span className="video-poster__wordmark" aria-hidden="true">
+              RazorSense
+            </span>
+            <span className="video-poster__play" aria-hidden="true">
+              <svg viewBox="0 0 68 48" width="68" height="48">
+                <path
+                  d="M66.5 7.7a8.5 8.5 0 0 0-6-6C55.2.3 34 .3 34 .3s-21.2 0-26.5 1.4a8.5 8.5 0 0 0-6 6C.1 13 .1 24 .1 24s0 11 1.4 16.3a8.5 8.5 0 0 0 6 6C12.8 47.7 34 47.7 34 47.7s21.2 0 26.5-1.4a8.5 8.5 0 0 0 6-6C67.9 35 67.9 24 67.9 24s0-11-1.4-16.3z"
+                  fill="#f00"
+                />
+                <path d="M27 34.3 45 24 27 13.7z" fill="#fff" />
+              </svg>
+            </span>
+          </button>
+        )}
+      </motion.div>
     </section>
   )
 }

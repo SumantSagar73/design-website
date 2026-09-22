@@ -1,0 +1,68 @@
+/* ------------------------------------------------------------------ *
+ * Animated duplicate of the hero background.
+ *
+ * .hero-anim__atmosphere stands in for .atmosphere from src/index.css: same
+ * z-index band, same base sheet, same bottom fade. The gradient layers inside
+ * it are generated and moved by AnimatedAtmosphere.tsx.
+ * ------------------------------------------------------------------ */
+
+.hero-anim__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+}
+
+.hero-anim__base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f5f6fc 0%, #f2f3fa 60%, #eceef9 100%);
+}
+
+/* Static gradient layers: first paint, reduced-motion and no-WebGL fallback. */
+.hero-anim__layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* The fluid field, drawn over the static layers in the same colours. The
+   bottom fade is done in the shader: a CSS mask over a WebGL canvas can
+   render black once composited. Hidden until the GL context is up. */
+.hero-anim__fluid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Back link on the /hero-animated route. */
+.hero-anim-back {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 11, 16, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f6470;
+}
+
+.hero-anim-back:hover {
+  color: #0a0b10;
+}
