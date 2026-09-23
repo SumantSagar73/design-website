@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import Navbar from './components/Navbar'
 import HeroAnimated from './hero-animated/HeroAnimated'
+import Footer from './components/Footer'
 import DesignPhilosophy from './components/DesignPhilosophy'
 import TryOrbitSense from './components/TryOrbitSense'
 import DesignLanguage from './components/DesignLanguage'
@@ -193,6 +194,7 @@ export default function App() {
         <DesignLanguage />
         <WatchVideo />
       </main>
+      <Footer />
     </div>
   )
 }

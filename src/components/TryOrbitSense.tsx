@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-type StateKey = 'Calm' | 'Active' | 'Attention' | 'Success'
+type StateKey = 'Calm' | 'Active' | 'Alert' | 'Resolve'
 
 interface StateConfig {
   panel: string
@@ -18,7 +18,7 @@ const STATES: Record<StateKey, StateConfig> = {
     dur: 6,
     spread: 1.18,
     text: '#334155',
-    copy: 'When everything is under control.',
+    copy: 'When everything is under control',
   },
   Active: {
     panel: 'linear-gradient(135deg, #DCEFF7 0%, #A6DAEE 42%, #62BFE3 100%)',
@@ -26,57 +26,23 @@ const STATES: Record<StateKey, StateConfig> = {
     dur: 2.6,
     spread: 0.9,
     text: '#0F172A',
-    copy: 'When a conversation is happening.',
+    copy: 'When moving forward',
   },
-  Attention: {
+  Alert: {
     panel: 'linear-gradient(135deg, #FDF4E4 0%, #F7E1B8 45%, #EFC981 100%)',
     ring: 'rgba(180,120,20,',
     dur: 1.15,
     spread: 1.02,
     text: '#4A3411',
-    copy: 'When something needs action.',
+    copy: 'When action is needed',
   },
-  Success: {
+  Resolve: {
     panel: 'linear-gradient(135deg, #EDF7F4 0%, #CDEBE2 45%, #A6DACD 100%)',
     ring: 'rgba(20,120,100,',
     dur: 7, // 5 full rings for harmonic balance
     spread: 0.88,
     text: '#123A31',
-    copy: 'When the conversation moves forward.',
-  },
-}
-
-/* V2 — the orbit-showcase stage (public/orbit-showcase.html): a semicircle
-   of orbit arcs rising from below, with the state pills sitting on that arc.
-   Colours, gradients and captions are copied from it unchanged. */
-const V2: Record<StateKey, { bg: string; glow: string; line: string; dot: string; caption: string }> = {
-  Calm: {
-    bg: 'linear-gradient(180deg, #F2F7FD 0%, #F8FBFE 55%, #EDF4FC 100%)',
-    glow: 'rgba(186, 230, 253, 0.4)',
-    line: 'rgba(2, 132, 199, 0.22)',
-    dot: '#0ea5e9',
-    caption: 'When everything is under control.',
-  },
-  Active: {
-    bg: 'linear-gradient(180deg, #F0F5FF 0%, #F7FAFF 55%, #E9F0FE 100%)',
-    glow: 'rgba(191, 219, 254, 0.4)',
-    line: 'rgba(37, 99, 235, 0.25)',
-    dot: '#2563eb',
-    caption: 'In continuous flow. Data streaming without friction.',
-  },
-  Attention: {
-    bg: 'linear-gradient(180deg, #FFFDF7 0%, #FFFDF5 55%, #FDF8EE 100%)',
-    glow: 'rgba(253, 230, 138, 0.35)',
-    line: 'rgba(217, 119, 6, 0.25)',
-    dot: '#f59e0b',
-    caption: 'Guiding focus where critical intervention is required.',
-  },
-  Success: {
-    bg: 'linear-gradient(180deg, #F2FDF8 0%, #F7FDFB 55%, #ECFAF2 100%)',
-    glow: 'rgba(167, 243, 208, 0.35)',
-    line: 'rgba(16, 185, 129, 0.25)',
-    dot: '#10b981',
-    caption: 'Delight in completion. Trajectory locked and secured.',
+    copy: 'When reaching a conclusion',
   },
 }
 
@@ -86,7 +52,6 @@ export default function TryOrbitSense() {
   const [variant, setVariant] = useState<'v1' | 'v2'>('v1')
 
   const st = STATES[active]
-  const v2 = V2[active]
   const count = 5
   const stateKeys = Object.keys(STATES) as StateKey[]
 
@@ -96,14 +61,13 @@ export default function TryOrbitSense() {
         {/* Top Header Row Matching Reference Image */}
         <div className="try-header-row">
           <h2 className="try-headline-left">
-            Alive at every touchpoint.
+            Designed for clarity
             <br />
-            Watch Razorsense respond.
+            in a connected world
           </h2>
           <p className="try-description-right">
-            RazorSense understands that every interaction carries an emotion. So its colour, form,
-            shape, and motion move with you. Guiding you, supporting you, like a companion present
-            in every action you take and every doubt you have.
+            MyOrbit holds every component, interaction, and experience into one connected system —
+            making complexity feel simple, intentional, and consistent.
           </p>
         </div>
 
@@ -125,16 +89,21 @@ export default function TryOrbitSense() {
 
         {variant === 'v2' ? (
           /* ---------------------------------------------- V2: orbit arc */
-          <div className="tryv2-stage" style={{ background: v2.bg }}>
-            <div className="tryv2-backlight" style={{ background: v2.glow }} />
+          /* Background comes from the V1 panel too, so V2 carries the same
+             depth of colour rather than its own washed-out tint. */
+          <div className="tryv2-stage" style={{ background: st.panel }}>
+            {/* Backlight is the state's own ring hue, kept faint. */}
+            <div className="tryv2-backlight" style={{ background: `${st.ring}0.18)` }} />
 
             {/* Concentric arcs centred below the card, so only their tops show.
-                They breathe outward at the state's own tempo, like the V1 rings. */}
+                They breathe outward at the state's own tempo, and take their
+                colour from the V1 ring palette so both variants read alike.
+                Only the alpha differs per arc, keeping V2's own weighting. */}
             <svg className="tryv2-arcs" viewBox="0 0 1000 480" fill="none" preserveAspectRatio="xMidYMid slice">
               {[
-                { r: 290, stroke: 'rgba(2, 132, 199, 0.10)', width: 1 },
-                { r: 390, stroke: v2.line, width: 1.2 },
-                { r: 490, stroke: 'rgba(2, 132, 199, 0.08)', width: 1 },
+                { r: 290, alpha: 0.1, width: 1 },
+                { r: 390, alpha: 0.22, width: 1.2 },
+                { r: 490, alpha: 0.08, width: 1 },
               ].map((arc, i) => (
                 <circle
                   key={arc.r}
@@ -142,7 +111,7 @@ export default function TryOrbitSense() {
                   cx="500"
                   cy="560"
                   r={arc.r}
-                  stroke={arc.stroke}
+                  stroke={`${st.ring}${arc.alpha})`}
                   strokeWidth={arc.width}
                   style={{
                     animationDuration: `${st.dur}s`,
@@ -165,7 +134,7 @@ export default function TryOrbitSense() {
                     onClick={() => setActive(name)}
                     aria-pressed={on}
                   >
-                    {on && <span className="tryv2-dot" style={{ background: v2.dot }} />}
+                    {on && <span className="tryv2-dot" style={{ background: `${st.ring}1)` }} />}
                     {name}
                   </button>
                 )
@@ -173,7 +142,7 @@ export default function TryOrbitSense() {
             </div>
 
             <p className="tryv2-caption" key={active}>
-              {v2.caption}
+              {st.copy}
             </p>
           </div>
         ) : (

@@ -6,7 +6,7 @@ import { C, STATES, STATE_KEYS, chime, clamp, font, local, readBest, rgba, saveB
 const ID = 'payment-rush'
 const LIVES = 3
 
-/* Everyday Razorpay moments and the state each one should feel like. */
+/* Everyday MyOrbit moments and the state each one should feel like. */
 const EVENTS: { title: string; meta: string; state: StateKey }[] = [
   { title: 'Settlement on schedule', meta: 'T+2 · ₹1,24,000', state: 'Calm' },
   { title: 'No disputes this week', meta: 'Risk · 0 open', state: 'Calm' },
@@ -14,13 +14,13 @@ const EVENTS: { title: string; meta: string; state: StateKey }[] = [
   { title: 'Customer chatting', meta: 'Support · live', state: 'Active' },
   { title: 'Checkout in progress', meta: 'UPI · ₹2,499', state: 'Active' },
   { title: 'Payout processing', meta: 'IMPS · ₹18,000', state: 'Active' },
-  { title: 'Payment failed', meta: 'Card declined · ₹899', state: 'Attention' },
-  { title: 'Refund needs approval', meta: 'Order #7719 · ₹1,200', state: 'Attention' },
-  { title: 'KYC document missing', meta: 'Onboarding · PAN', state: 'Attention' },
-  { title: 'Chargeback raised', meta: 'Dispute · ₹4,300', state: 'Attention' },
-  { title: 'Invoice paid', meta: 'INV-2041 · ₹56,000', state: 'Success' },
-  { title: 'Payout settled', meta: 'Bank · ₹48,000', state: 'Success' },
-  { title: 'Integration live', meta: 'API · test passed', state: 'Success' },
+  { title: 'Payment failed', meta: 'Card declined · ₹899', state: 'Alert' },
+  { title: 'Refund needs approval', meta: 'Order #7719 · ₹1,200', state: 'Alert' },
+  { title: 'KYC document missing', meta: 'Onboarding · PAN', state: 'Alert' },
+  { title: 'Chargeback raised', meta: 'Dispute · ₹4,300', state: 'Alert' },
+  { title: 'Invoice paid', meta: 'INV-2041 · ₹56,000', state: 'Resolve' },
+  { title: 'Payout settled', meta: 'Bank · ₹48,000', state: 'Resolve' },
+  { title: 'Integration live', meta: 'API · test passed', state: 'Resolve' },
 ]
 
 type Card = { e: (typeof EVENTS)[number]; y: number; lane: number; x: number }

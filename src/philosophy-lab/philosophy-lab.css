@@ -432,32 +432,5 @@
 
 /* ======================================================== glitch lab */
 
-.glitch-wrap {
-  position: relative;
-}
-
-.glitch-dom {
-  position: relative;
-}
-
-/* Once the shader is drawing, the DOM text only carries layout, selection
-   and accessibility. */
-.glitch-wrap.is-gl .glitch-dom .manifesto-scroll-word-wrapper {
-  color: transparent;
-}
-
-.glitch-wrap.is-gl .glitch-dom ::selection {
-  color: transparent;
-  background: rgba(127, 130, 222, 0.25);
-}
-
-.glitch-canvas {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  /* Width and height are set in px from the heading by glitch.tsx. */
-  pointer-events: none;
-}
-
 .plab-tab__group--liquid { background: rgba(43, 187, 201, 0.12); color: #1198a8; }
 .plab-tab__group--motion { background: rgba(224, 69, 123, 0.1); color: #c2356a; }

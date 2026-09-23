@@ -1,65 +1,54 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion'
+import { motion } from 'framer-motion'
+
+import { LIQUID_MINIMAL, LIQUID_PAD, useLiquidText } from './liquidText'
 
 const MANIFESTO_TEXT =
-  'Built for the Humans in the AI Era, RazorSense is a design language that gives every state a feeling, every interaction a pulse, and every action a reason to feel alive, expressive, and genuinely felt.'
+  'MyOrbit brings every interaction into one intentional system — where clarity guides, components connect, and every detail has a purpose.'
 
 const words = MANIFESTO_TEXT.split(' ')
 
-interface WordProps {
-  children: string
-  progress: MotionValue<number>
-  range: [number, number]
-}
-
-function Word({ children, progress, range }: WordProps) {
-  const opacity = useTransform(progress, range, [0.15, 1])
-  const y = useTransform(progress, range, [5, 0])
-
-  return (
-    <span className="manifesto-scroll-word-wrapper">
-      <motion.span style={{ opacity, y }} className="manifesto-scroll-word">
-        {children}
-      </motion.span>
-    </span>
-  )
-}
-
+/**
+ * The manifesto, rendered through the "Minimal liquid" lens: the words still
+ * reveal on scroll, and hovering swells them under the cursor before they ease
+ * back. The shader lives in ./liquidText.ts; the DOM text below it keeps the
+ * layout, selection and screen-reader copy.
+ *
+ * Without WebGL or under prefers-reduced-motion the hook bails out and the
+ * plain DOM heading is what shows.
+ */
 export default function DesignPhilosophy() {
+  const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLHeadingElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Scroll-driven progress: words appear in direct sync with scroll position
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    // Starts as the section enters from the bottom, and is fully revealed by
-    // the time the section is centred in the viewport.
-    offset: ['start end', 'center center'],
-  })
+  useLiquidText({ sectionRef, wrapRef, textRef, canvasRef, containerRef }, LIQUID_MINIMAL)
 
   return (
-    <section id="design-philosophy" className="content-section philosophy-section">
+    <section ref={sectionRef} id="design-philosophy" className="content-section philosophy-section">
       <div className="section-container philosophy-manifesto-container" ref={containerRef}>
         {/* Eyebrow Bar */}
         <div className="manifesto-top-bar">
           <span className="manifesto-eyebrow">Design Philosophy</span>
         </div>
 
-        {/* Left-Aligned Headline: Complete Words Appear Directly Driven by Scroll */}
-        <h2 className="manifesto-text left-aligned">
-          {words.map((word, index) => {
-            const start = index / words.length
-            const end = Math.min(start + 1.2 / words.length, 1)
-            return (
-              <Word
-                key={index}
-                progress={scrollYProgress}
-                range={[start, end]}
-              >
+        <div className="glitch-wrap" ref={wrapRef}>
+          <h2 className="manifesto-text left-aligned glitch-dom" ref={textRef}>
+            {words.map((word, index) => (
+              <span key={index} className="manifesto-scroll-word-wrapper" data-w>
                 {word}
-              </Word>
-            )
-          })}
-        </h2>
+              </span>
+            ))}
+          </h2>
+          <canvas
+            ref={canvasRef}
+            className="glitch-canvas"
+            style={{ left: -LIQUID_PAD, top: -LIQUID_PAD }}
+            aria-hidden="true"
+          />
+        </div>
 
         {/* Bottom Accent Line */}
         <motion.div

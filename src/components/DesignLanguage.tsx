@@ -51,15 +51,15 @@ export default function DesignLanguage() {
           transition={{ duration: 0.8, ease: EASE }}
         >
           <h2 className="glyph-title">
-            The core
+            Driven by
             <br />
-            born from the glyph.
+            possibility
           </h2>
-          <h3 className="glyph-subtitle">The signature</h3>
+          <h3 className="glyph-subtitle">The vision</h3>
           <p className="glyph-body">
-            Every edge and angle of RazorSense is pulled directly from the iconic Razorpay logo. By
-            treating the glyph as our atomic core, we ensure that the entire design language is a
-            natural, unmistakable extension of who we are.
+            MyOrbit establishes a circle of control for designers and users alike. The Orbital
+            carries that vision forward with endless possibility. Its fluid, progressive geometry
+            signals where our design language is headed next.
           </p>
         </motion.div>
 
@@ -95,15 +95,15 @@ export default function DesignLanguage() {
           transition={{ duration: 0.8, ease: EASE }}
         >
           <h2 className="glyph-title">
-            The pulse
+            Built for
             <br />
-            powered by the flutes.
+            connection
           </h2>
-          <h3 className="glyph-subtitle">The intelligence behind the interface.</h3>
+          <h3 className="glyph-subtitle">The foundation</h3>
           <p className="glyph-body">
-            If the glyph is the body, the Flutes are the brain. This is the dynamic, thinking, and
-            conversing engine of RazorSense. It acts as a living pulse—analyzing context and subtly
-            morphing to guide users effortlessly through their payment journeys.
+            Every element of MyOrbit is shaped by connection. Atomic components come together to
+            create cohesive experiences, reflecting how conversations flow between people, teams,
+            and technology.
           </p>
         </motion.div>
 

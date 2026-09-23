@@ -16,7 +16,7 @@ const LEVELS = [
   ['#o#o#o#o#o', 'oooooooooo', 'o##oooo##o', 'oooooooooo', '#oooooooo#', 'oo#oooo#oo', 'oooooooooo'],
 ]
 const POWER_CHANCE = 0.14
-const POWERS: StateKey[] = ['Calm', 'Active', 'Attention', 'Success']
+const POWERS: StateKey[] = ['Calm', 'Active', 'Alert', 'Resolve']
 
 type Brick = { x: number; y: number; w: number; h: number; hp: number; tough: boolean; color: string; hit: number }
 type Ball = { x: number; y: number; vx: number; vy: number; spin: number }
@@ -166,7 +166,7 @@ export default function OrbitBreaker() {
     if (s.phase === 'play') {
       s.wide = Math.max(0, s.wide - dt)
       s.slow = Math.max(0, s.slow - dt)
-      const active = [s.wide > 0 && 'Attention', s.slow > 0 && 'Calm'].filter(Boolean).join(' · ') || '—'
+      const active = [s.wide > 0 && 'Alert', s.slow > 0 && 'Calm'].filter(Boolean).join(' · ') || '—'
       if (active !== powerRef.current) {
         powerRef.current = active
         setPower(active)
@@ -373,8 +373,8 @@ export default function OrbitBreaker() {
     const s = g.current
     chime(STATES[kind].chord, 0.05, 0.9)
     if (kind === 'Calm') s.slow = 8
-    if (kind === 'Attention') s.wide = 10
-    if (kind === 'Success') {
+    if (kind === 'Alert') s.wide = 10
+    if (kind === 'Resolve') {
       s.lives++
       setLives(s.lives)
     }
@@ -402,7 +402,7 @@ export default function OrbitBreaker() {
         phase === 'ready'
           ? {
               title: 'Orbit Breaker',
-              body: 'Break the glyph wall. Blue glyph bricks take two hits. Catch the state capsules: Calm slows the ball, Active splits it, Attention widens you, Success adds a life.',
+              body: 'Break the orbit wall. Blue mark bricks take two hits. Catch the state capsules: Calm slows the ball, Active splits it, Alert widens you, Resolve adds a life.',
               action: 'Play',
               onAction: start,
             }

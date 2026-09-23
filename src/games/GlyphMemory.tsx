@@ -62,7 +62,7 @@ const FACES: { id: string; name: string; art: ReactNode }[] = [
       </svg>
     ),
   },
-  ...(['Calm', 'Active', 'Attention', 'Success'] as const).map((k) => ({
+  ...(['Calm', 'Active', 'Alert', 'Resolve'] as const).map((k) => ({
     id: k.toLowerCase(),
     name: k,
     art: (

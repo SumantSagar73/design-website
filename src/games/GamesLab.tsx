@@ -32,10 +32,10 @@ const GAMES: Game[] = [
   { id: 'breaker', name: 'Orbit Breaker', group: 'Arcade', Component: OrbitBreaker },
   { id: 'catch', name: 'Orbit Catch', group: 'Toy', Component: OrbitCatch },
   { id: 'stir', name: 'Stir the Fluid', group: 'Toy', Component: StirFluid },
-  { id: 'slicer', name: 'Glyph Slicer', group: 'Toy', Component: GlyphSlicer },
+  { id: 'slicer', name: 'Orbit Slicer', group: 'Toy', Component: GlyphSlicer },
   { id: 'mood', name: 'Mood Match', group: 'On-brand', Component: MoodMatch },
   { id: 'pulse', name: 'Tune the Pulse', group: 'On-brand', Component: TunePulse },
-  { id: 'build', name: 'Build the Glyph', group: 'On-brand', Component: BuildGlyph },
+  { id: 'build', name: 'Build the Mark', group: 'On-brand', Component: BuildGlyph },
   { id: 'gravity', name: 'Orbit Gravity', group: 'Showpiece', Component: OrbitGravity },
   { id: 'says', name: 'Ray Says', group: 'Showpiece', Component: RaySays },
   { id: 'pong', name: 'Liquid Pong', group: 'Showpiece', Component: LiquidPong },
@@ -45,7 +45,7 @@ const GAMES: Game[] = [
   { id: 'caustic', name: 'Caustic Catch', group: 'On-brand', Component: CausticCatch },
   { id: 'stack', name: 'State Stack', group: 'On-brand', Component: StateStack },
   { id: 'snake', name: 'Orbit Snake', group: 'Arcade', Component: OrbitSnake },
-  { id: 'memory', name: 'Glyph Memory', group: 'Toy', Component: GlyphMemory },
+  { id: 'memory', name: 'Orbit Memory', group: 'Toy', Component: GlyphMemory },
   { id: 'rush', name: 'Payment Rush', group: 'On-brand', Component: PaymentRush },
 ]
 

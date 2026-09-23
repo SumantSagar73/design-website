@@ -14,7 +14,7 @@ export default function CausticCatch() {
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(LIVES)
   const [best, setBest] = useState(() => readBest(ID))
-  const [call, setCall] = useState<StateKey>('Success')
+  const [call, setCall] = useState<StateKey>('Resolve')
   const [phase, setPhase] = useState<'ready' | 'play' | 'over'>('ready')
   const g = useRef({
     phase: 'ready' as 'ready' | 'play' | 'over',
@@ -22,7 +22,7 @@ export default function CausticCatch() {
     pops: [] as Pop[],
     px: 0.5,
     x: 0.5,
-    call: 'Success' as StateKey,
+    call: 'Resolve' as StateKey,
     callT: CALL_EVERY,
     spawn: 0,
     time: 0,

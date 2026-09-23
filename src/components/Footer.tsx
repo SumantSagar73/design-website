@@ -1,63 +1,83 @@
-import { ArrowUp } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
 
+import GlyphSlicer, { type SlicerHandle, type SlicerStats } from '../games/GlyphSlicer'
+
+const SOCIALS = [
+  { label: 'Instagram', href: 'https://www.instagram.com/myoperator' },
+  { label: 'X', href: 'https://x.com/myoperator' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/myoperator' },
+  { label: 'www.myoperator.com', href: 'https://www.myoperator.com' },
+]
+
+/**
+ * The footer *is* the play area: Orbit Slicer fills the whole panel and the
+ * copy floats over it, so orbitals fly up behind the wordmark. Everything
+ * except the actual controls is pointer-transparent, letting a drag anywhere
+ * across the footer cut. The game keeps its own score; the footer only mirrors
+ * it so the pitch can react.
+ */
 export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const slicer = useRef<SlicerHandle>(null)
+  const [stats, setStats] = useState<SlicerStats>({
+    phase: 'ready',
+    score: 0,
+    best: 0,
+    lives: 3,
+  })
+
+  /* Stable, so the child's stats effect doesn't refire every render. */
+  const onStats = useCallback((s: SlicerStats) => setStats(s), [])
 
   return (
     <footer className="site-footer">
-      <div className="footer-container">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <div className="footer-logo">
-              <svg viewBox="0 0 32 32" aria-hidden="true">
-                <circle
-                  cx="16"
-                  cy="16"
-                  r="12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeDasharray="68.4 7"
-                  transform="rotate(-64 16 16)"
-                />
-              </svg>
-              <span>MyOrbit</span>
-            </div>
-            <p className="footer-tagline">
-              The unified design system and architectural canvas powering the next generation of
-              agentic interfaces.
-            </p>
-          </div>
+      <div className="footer-arena">
+        <GlyphSlicer ref={slicer} bare onStats={onStats} />
+      </div>
 
-          <div className="footer-nav">
-            <div className="footer-col">
-              <h5>Navigation</h5>
-              <a href="#design-philosophy">Design Philosophy</a>
-              <a href="#try-orbitsense">Try OrbitSense</a>
-              <a href="#design-language">Design Language</a>
-              <a href="#watch-video">Watch Video</a>
-            </div>
-            <div className="footer-col">
-              <h5>Architecture</h5>
-              <a href="#hero">Gyroscopic Glass</a>
-              <a href="#hero">Refractive Shaders</a>
-              <a href="#hero">Spatial Physics</a>
-              <a href="#hero">Token Architecture</a>
-            </div>
-          </div>
-        </div>
+      <div className="footer-head">
+        <h2 className="footer-wordmark">
+          MyOrbit
+          <br />
+          <span className="footer-wordmark__sub">/design system</span>
+        </h2>
 
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} MyOrbit Design System. Built with optical glass precision.</p>
-          <button className="back-to-top" onClick={scrollToTop} aria-label="Back to top">
-            <span>Back to top</span>
-            <ArrowUp size={15} />
-          </button>
+        <div className="footer-pitch">
+          <p>
+            <button
+              type="button"
+              className="footer-play"
+              onClick={() => slicer.current?.start()}
+            >
+              {stats.phase === 'over' ? 'PLAY AGAIN' : 'PLAY'}
+            </button>{' '}
+            this game,
+            <br />
+            {stats.phase === 'play'
+              ? `${stats.score} point${stats.score === 1 ? '' : 's'} · ${'●'.repeat(Math.max(stats.lives, 0))}`
+              : stats.phase === 'over'
+                ? `${stats.score} points. Best ${stats.best}.`
+                : 'Bet you can win.'}
+          </p>
         </div>
       </div>
+
+      <div className="footer-meta">
+        <p>Copyright © {new Date().getFullYear()} MyOrbit</p>
+        <nav className="footer-socials" aria-label="Social links">
+          {SOCIALS.map((s, i) => (
+            <span key={s.label}>
+              {i > 0 && <span className="footer-socials__sep" aria-hidden="true">|</span>}
+              <a href={s.href} target="_blank" rel="noreferrer noopener">
+                {s.label}
+              </a>
+            </span>
+          ))}
+        </nav>
+      </div>
+
+      {stats.phase === 'ready' && (
+        <p className="footer-hint">Drag anywhere to slice · along an orbital’s axis for ×2</p>
+      )}
     </footer>
   )
 }

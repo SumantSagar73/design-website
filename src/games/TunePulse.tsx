@@ -6,7 +6,7 @@ import { C, STATES, STATE_KEYS, chime, font, glow, readBest, rgba, saveBest, use
 const ID = 'tune-pulse'
 const BEATS_PER_STATE = 8
 /* Each state's heartbeat, in beats per minute. */
-const BPM: Record<StateKey, number> = { Calm: 56, Active: 92, Attention: 128, Success: 74 }
+const BPM: Record<StateKey, number> = { Calm: 56, Active: 92, Alert: 128, Resolve: 74 }
 const TRAVEL = 1.25 // seconds from centre to the target ring
 const PERFECT = 0.06
 const GOOD = 0.13
@@ -107,7 +107,7 @@ export default function TunePulse() {
         judge('Miss', C.ink3)
       }
     }
-    const current = s.pulses.find((p) => p.hitAt >= s.clock - 0.2)?.state ?? 'Success'
+    const current = s.pulses.find((p) => p.hitAt >= s.clock - 0.2)?.state ?? 'Resolve'
     if (current !== stateRef.current) {
       stateRef.current = current
       setStateName(current)
@@ -179,7 +179,7 @@ export default function TunePulse() {
       hint="Click or Space on the beat"
       overlay={
         phase === 'ready'
-          ? { title: 'Tune the Pulse', body: 'Each RazorSense state has a heartbeat — Calm is slow, Attention races. Tap as each pulse meets the ring. Sound on.', action: 'Play', onAction: start }
+          ? { title: 'Tune the Pulse', body: 'Each MyOrbit state has a heartbeat — Calm is slow, Alert races. Tap as each pulse meets the ring. Sound on.', action: 'Play', onAction: start }
           : phase === 'over'
             ? { title: `${score} points`, body: `${g.current.hits}/${g.current.total} beats in tune.${score >= best && score > 0 ? ' New best.' : ''}`, action: 'Play again', onAction: start }
             : null

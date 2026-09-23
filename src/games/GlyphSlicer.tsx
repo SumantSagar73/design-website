@@ -1,12 +1,21 @@
-import { useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import Stage from './Stage'
-import { C, chime, drawGlyph, font, local, rand, readBest, ribbonGradient, saveBest, useCanvasLoop } from './kit'
+import { C, chime, drawOrbital, font, local, rand, readBest, ribbonGradient, saveBest, useCanvasLoop } from './kit'
 
 const ID = 'glyph-slicer'
 const LIVES = 3
-/* The glyph's stripes run at this angle (radians) before rotation. */
-const STRIPE = Math.atan2(-540, 129)
+/* A clean cut runs along the orbital's own axis, before its spin. */
+const STRIPE = 0
+
+export type SlicerHandle = { start: () => void }
+export type SlicerStats = { phase: 'ready' | 'play' | 'over'; score: number; best: number; lives: number }
+
+type Props = {
+  /** Drop the Stage card chrome — used by the footer, which frames it itself. */
+  bare?: boolean
+  onStats?: (s: SlicerStats) => void
+}
 
 type Glyph = { x: number; y: number; vx: number; vy: number; rot: number; vr: number; h: number; risen: boolean }
 type Piece = { x: number; y: number; vx: number; vy: number; rot: number; vr: number; h: number; side: 1 | -1; cut: number; life: number }
@@ -22,7 +31,7 @@ const segCircle = (ax: number, ay: number, bx: number, by: number, cx: number, c
   return px * px + py * py <= r * r
 }
 
-export default function GlyphSlicer() {
+const GlyphSlicer = forwardRef<SlicerHandle, Props>(function GlyphSlicer({ bare = false, onStats }, ref) {
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(LIVES)
   const [best, setBest] = useState(() => readBest(ID))
@@ -128,7 +137,7 @@ export default function GlyphSlicer() {
           if (s.lives <= 0) end()
         }
       } else {
-        drawGlyph(ctx, q.x, q.y, q.h, { rotate: q.rot })
+        drawOrbital(ctx, q.x, q.y, q.h, { rotate: q.rot })
       }
     }
 
@@ -153,7 +162,7 @@ export default function GlyphSlicer() {
       ctx.rect(-p.h * 2, p.side > 0 ? 0 : -p.h * 2, p.h * 4, p.h * 2)
       ctx.restore()
       ctx.clip()
-      drawGlyph(ctx, 0, 0, p.h, { alpha: Math.min(1, p.life) })
+      drawOrbital(ctx, 0, 0, p.h, { alpha: Math.min(1, p.life) })
       ctx.restore()
     }
 
@@ -198,32 +207,51 @@ export default function GlyphSlicer() {
     g.current.trail.push({ ...q, t: g.current.time })
   }
 
+  useImperativeHandle(ref, () => ({ start }), [])
+
+  /* Held in a ref so an inline callback from the parent can't re-fire this. */
+  const statsCb = useRef(onStats)
+  useEffect(() => {
+    statsCb.current = onStats
+  }, [onStats])
+  useEffect(() => {
+    statsCb.current?.({ phase, score, best, lives })
+  }, [phase, score, best, lives])
+
+  const surface = (
+    <canvas
+      ref={canvas}
+      className="game-canvas"
+      onPointerDown={(e) => {
+        g.current.down = true
+        g.current.trail = []
+        push(e)
+      }}
+      onPointerMove={(e) => g.current.down && push(e)}
+      onPointerUp={() => (g.current.down = false)}
+      onPointerLeave={() => (g.current.down = false)}
+    />
+  )
+
+  if (bare) return <div className="slicer-bare">{surface}</div>
+
   return (
     <Stage
       score={score}
       best={best}
       extra={[{ label: 'Lives', value: '●'.repeat(Math.max(lives, 0)) + '○'.repeat(LIVES - Math.max(lives, 0)) }]}
-      hint="Drag to slice · along the stripes for ×2"
+      hint="Drag to slice · along the orbital's axis for ×2"
       overlay={
         phase === 'ready'
-          ? { title: 'Glyph Slicer', body: 'Slice the glyphs before they fall. Cut along their stripes for a clean ×2. Miss three and it’s over.', action: 'Play', onAction: start }
+          ? { title: 'Orbit Slicer', body: 'Slice the orbitals before they fall. Cut along an orbital’s own axis for a clean ×2. Miss three and it’s over.', action: 'Play', onAction: start }
           : phase === 'over'
             ? { title: `${score} points`, body: score >= best && score > 0 ? 'New best.' : 'Three got away.', action: 'Play again', onAction: start }
             : null
       }
     >
-      <canvas
-        ref={canvas}
-        className="game-canvas"
-        onPointerDown={(e) => {
-          g.current.down = true
-          g.current.trail = []
-          push(e)
-        }}
-        onPointerMove={(e) => g.current.down && push(e)}
-        onPointerUp={() => (g.current.down = false)}
-        onPointerLeave={() => (g.current.down = false)}
-      />
+      {surface}
     </Stage>
   )
-}
+})
+
+export default GlyphSlicer

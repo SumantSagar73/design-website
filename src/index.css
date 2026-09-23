@@ -314,6 +314,36 @@ ol {
   color: #22252e;
 }
 
+/* ------------------------------------------- Liquid manifesto lens
+   Shared by the live Design Philosophy section and the philosophy lab.
+   The canvas is sized and positioned in px by src/components/liquidText.ts. */
+.glitch-wrap {
+  position: relative;
+}
+
+.glitch-dom {
+  position: relative;
+}
+
+/* Once the shader is drawing, the DOM text only carries layout, selection
+   and accessibility. */
+.glitch-wrap.is-gl .glitch-dom .manifesto-scroll-word-wrapper {
+  color: transparent;
+}
+
+.glitch-wrap.is-gl .glitch-dom ::selection {
+  color: transparent;
+  background: rgba(127, 130, 222, 0.25);
+}
+
+.glitch-canvas {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  /* Width and height are set in px from the heading by glitch.tsx. */
+  pointer-events: none;
+}
+
 /* --------------------------------------------------------------- footer */
 
 .foot {
@@ -1205,10 +1235,10 @@ ol {
 
 .try-description-right {
   margin: 0;
-  font-size: clamp(14px, 1.12vw, 15.5px);
-  line-height: 1.55;
-  color: #475569;
-  max-width: 440px;
+  font-size: clamp(15.5px, 1.4vw, 19px);
+  line-height: 1.6;
+  color: #3d4a5c;
+  max-width: 480px;
   font-weight: 400;
   text-align: left;
 }
@@ -1920,36 +1950,29 @@ ol {
    whole rail is scaled by --ds-scale, so each offset below is the design's
    own number rather than a recomputed one. */
 .ds-block {
-  --ds-scale: 1;
-  /* One copy of the rail is 2856px wide; the duration is trimmed alongside
-     --ds-scale so the drift reads at the same speed on every screen. */
-  --ds-marquee: 55s;
+  --ds-scale: 0.75;
   margin-top: clamp(96px, 12vw, 180px);
   font-family: 'Inter', var(--font);
 }
 
 @media (max-width: 1440px) {
   .ds-block {
-    --ds-scale: 0.85;
-    --ds-marquee: 47s;
+    --ds-scale: 0.66;
   }
 }
 @media (max-width: 1024px) {
   .ds-block {
-    --ds-scale: 0.7;
-    --ds-marquee: 39s;
+    --ds-scale: 0.56;
   }
 }
 @media (max-width: 768px) {
   .ds-block {
-    --ds-scale: 0.56;
-    --ds-marquee: 31s;
+    --ds-scale: 0.46;
   }
 }
 @media (max-width: 480px) {
   .ds-block {
-    --ds-scale: 0.46;
-    --ds-marquee: 25s;
+    --ds-scale: 0.38;
   }
 }
 
@@ -1977,12 +2000,27 @@ ol {
   color: #252c3c;
 }
 
+.ds-hint {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--ink-2);
+}
+
 /* Full-bleed past the section gutters; the rail keeps the design's own
    486px row height so tiles stay vertically centred. */
 .ds-viewport {
   margin: 0 calc(-1 * var(--gutter));
   height: calc(486px * var(--ds-scale));
   overflow: hidden;
+  cursor: grab;
+  /* Horizontal gestures drive the rail; vertical ones still scroll the page. */
+  touch-action: pan-y;
+}
+
+.ds-viewport.is-grabbing {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .ds-scaler {
@@ -1998,27 +2036,12 @@ ol {
   width: max-content;
   height: 100%;
   will-change: transform;
-  animation: ds-marquee var(--ds-marquee) linear infinite;
-}
-
-/* Let someone stop the drift to actually read a component. */
-.ds-viewport:hover .ds-rail,
-.ds-viewport:focus-within .ds-rail {
-  animation-play-state: paused;
-}
-
-@keyframes ds-marquee {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ds-rail {
-    animation: none;
-  }
   .ds-viewport {
     overflow-x: auto;
+    cursor: auto;
   }
 }
 
@@ -2033,6 +2056,21 @@ ol {
   border: 1px solid;
   overflow: hidden;
   contain: paint;
+  transition:
+    transform 0.45s var(--ease),
+    box-shadow 0.45s var(--ease);
+}
+
+.ds-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px rgba(36, 46, 79, 0.45);
+}
+
+/* The site-wide pill focus ring is wrong for these rectangles. */
+.ds-tile :focus-visible {
+  outline: 2px solid #4275d6;
+  outline-offset: 2px;
+  border-radius: inherit;
 }
 
 .ds-tile--01 {
@@ -2217,14 +2255,49 @@ ol {
   color: #fff;
   white-space: nowrap;
   animation: ds-press 4s var(--ease) infinite;
+  transition:
+    transform 0.2s var(--ease),
+    background-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+.ds-btn-primary:hover,
+.ds-btn-primary.is-busy,
+.ds-btn-primary.is-done {
+  animation-play-state: paused;
+}
+
+.ds-btn-primary:hover {
+  background: #2b3448;
+  box-shadow: 0 20px 38px -12px rgba(51, 61, 84, 0.66);
+}
+
+.ds-btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 8px 18px -12px rgba(51, 61, 84, 0.6);
+}
+
+.ds-btn-primary.is-done {
+  background: #0f7a4d;
+  box-shadow: 0 16px 32px -12px rgba(6, 118, 71, 0.55);
 }
 
 .ds-btn-primary__icon {
   display: block;
 }
 
+.ds-btn-primary__spin {
+  width: 19px;
+  height: 19px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 999px;
+  animation: ds-spin 0.7s linear infinite;
+}
+
 /* ---------------------------------------------------- 02 - Loading states */
 .ds-card--loading {
+  text-align: left;
   left: -12px;
   top: 97.76px;
   width: 312px;
@@ -2308,6 +2381,45 @@ ol {
 .ds-spinner {
   display: block;
   animation: ds-spin 0.9s linear infinite;
+}
+
+/* Resolved state: the same slots, filled with the data they were waiting on. */
+.ds-loaded__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 161.823px;
+  padding: 0 2px;
+}
+
+.ds-loaded__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #f1f2f4;
+  font-size: 15px;
+  color: #181d27;
+  white-space: nowrap;
+}
+
+.ds-loaded__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ds-loaded__dur {
+  font-variant-numeric: tabular-nums;
+  color: #717680;
+}
+
+.ds-loaded__line {
+  font-size: 15px;
+  color: #717680;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------- 03 - Upload file */
@@ -2469,8 +2581,28 @@ ol {
 }
 
 .ds-file__x {
-  display: block;
+  display: flex;
   flex: none;
+  border-radius: 999px;
+  transition: opacity 0.2s var(--ease);
+  opacity: 0.75;
+}
+
+.ds-file__x:hover {
+  opacity: 1;
+}
+
+.ds-file__x img {
+  display: block;
+}
+
+.ds-file--empty {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-style: dashed;
+  font-size: 12.86px;
+  color: #717680;
 }
 
 .ds-progressbar {
@@ -2488,6 +2620,10 @@ ol {
   border-radius: 4px;
   background: linear-gradient(90deg, #4275d6 0%, #c4d4f2 100%);
   transition: width 0.11s linear;
+}
+
+.ds-progressbar__fill.is-done {
+  background: linear-gradient(90deg, #067647 0%, #abefc6 100%);
 }
 
 /* ---------------------------------------------------------- 04 - Progress */
@@ -2530,9 +2666,16 @@ ol {
 
 .ds-ring {
   position: relative;
+  display: block;
   width: 176px;
   height: 176px;
   margin: 16px 0 6px;
+  border-radius: 999px;
+  transition: transform 0.3s var(--ease);
+}
+
+.ds-ring:hover {
+  transform: scale(1.03);
 }
 
 .ds-ring__track,
@@ -2684,6 +2827,24 @@ ol {
   letter-spacing: 0.0116px;
   color: #fff;
   white-space: nowrap;
+  transition:
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    border-color 0.25s var(--ease);
+}
+
+.ds-empty__btn:hover {
+  background: #2b3448;
+}
+
+.ds-empty__btn.is-ghost {
+  border-color: #e9eaeb;
+  background: #fff;
+  color: #343e55;
+}
+
+.ds-empty__btn.is-ghost:hover {
+  background: #f5f5f5;
 }
 
 .ds-empty__btn img {
@@ -2779,6 +2940,22 @@ ol {
   color: #343e55;
   white-space: nowrap;
   filter: drop-shadow(4.278px 4.278px 21.388px rgba(0, 0, 0, 0.02));
+  transition: background-color 0.2s var(--ease);
+}
+
+.ds-toast__close:hover {
+  background: #f5f5f5;
+}
+
+.ds-toast.is-dismissed {
+  animation: ds-toast-out 0.32s var(--ease) forwards;
+}
+
+@keyframes ds-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
 }
 
 /* ----------------------------------------------------------- 07 - Stepper */
@@ -2798,6 +2975,13 @@ ol {
   display: flex;
   align-items: flex-start;
   width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  transition: background-color 0.25s var(--ease);
+}
+
+.ds-step:hover {
+  background: rgba(66, 117, 214, 0.06);
 }
 
 .ds-step:not(:last-child) {
@@ -2983,14 +3167,20 @@ ol {
 /* -------------------------------------------------- Watch Video */
 /* Full-bleed grey band holding a near-full-width 16:9 player. */
 .video-section {
-  scroll-margin-top: 84px;
+  scroll-margin-top: 96px;
   background: #f6f6f6;
-  padding: clamp(40px, 6vw, 72px) clamp(16px, 6.25vw, 120px);
+  padding: clamp(32px, 4vw, 56px) clamp(16px, 6.25vw, 120px);
 }
 
 .video-frame {
   position: relative;
-  width: 100%;
+  /* 16:9 at full width runs taller than the viewport, which pushed the top of
+     the player up behind the fixed navbar. Cap the WIDTH to whatever keeps the
+     derived height inside the viewport — capping height instead would just
+     squash the box, since width: 100% already fixes one side. */
+  width: min(100%, calc((100vh - 200px) * 16 / 9));
+  width: min(100%, calc((100svh - 200px) * 16 / 9));
+  margin-inline: auto;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: #f7f9f8;
@@ -3018,19 +3208,19 @@ ol {
   /* Keeps the wordmark's blend inside the poster. */
   isolation: isolate;
   container-type: inline-size;
-  background:
-    radial-gradient(60% 70% at 50% 45%, #ffffff 0%, transparent 70%),
-    linear-gradient(180deg, #f8fbf9 0%, #f3f7f4 100%);
+  /* Same pale wash the hero sits on. */
+  background: linear-gradient(180deg, #f5f6fc 0%, #f2f3fa 60%, #eceef9 100%);
 }
 
-.video-poster__glyph {
+/* The MyOrbit ribbon — the same art the hero is built around. */
+.video-poster__ribbon {
   position: absolute;
-  top: 50%;
-  left: 52%;
-  width: 72%;
-  height: 132%;
-  transform: translate(-50%, -52%) rotate(-6deg);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
+  user-select: none;
 }
 
 .video-poster__wordmark {
@@ -3049,9 +3239,10 @@ ol {
 .video-poster__play {
   position: absolute;
   z-index: 2;
-  top: 50%;
+  /* Below the wordmark: centred, the badge reads as part of the "O". */
+  top: 72%;
   left: 50%;
-  width: clamp(48px, 5cqw, 68px);
+  width: clamp(52px, 5.4cqw, 74px);
   transform: translate(-50%, -50%);
   transition: transform 0.3s var(--ease);
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
@@ -3073,115 +3264,155 @@ ol {
   border-radius: 0;
 }
 
-/* -------------------------------------------------- Footer */
+/* -------------------------------------------------- Footer
+   A dark full-bleed panel that doubles as the Orbit Slicer arena: copy across
+   the top, the play area filling everything beneath it. */
+/* The panel is the game's own surface, not a dark slab: same haze the stage
+   uses, so the arena reads as part of the site. */
 .site-footer {
-  background: #0a0c13;
-  color: #fff;
-  padding: clamp(64px, 8vh, 96px) var(--gutter) 40px;
-}
-
-.footer-container {
-  max-width: 1160px;
-  margin: 0 auto;
-}
-
-.footer-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 48px;
-  flex-wrap: wrap;
-  padding-bottom: 48px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-brand {
-  max-width: 380px;
-}
-
-.footer-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin-bottom: 14px;
-}
-
-.footer-logo svg {
-  width: 26px;
-  height: 26px;
-  color: #60a5fa;
-}
-
-.footer-tagline {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.footer-nav {
-  display: flex;
-  gap: 64px;
-  flex-wrap: wrap;
-}
-
-.footer-col {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  min-height: min(820px, 94svh);
+  /* The navbar is fixed (18px offset + 64px tall), and at the page bottom the
+     footer's own top lands under it — so the header copy starts below that. */
+  padding: clamp(106px, 13vh, 148px) var(--gutter) clamp(28px, 4vh, 48px);
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--ink);
+  background:
+    radial-gradient(34% 44% at 50% 62%, rgba(255, 255, 255, 0.9), transparent 72%),
+    radial-gradient(18% 34% at 0% 62%, rgba(255, 206, 186, 0.5), transparent 72%),
+    radial-gradient(20% 36% at 2% 88%, rgba(168, 198, 255, 0.5), transparent 72%),
+    radial-gradient(16% 40% at 100% 52%, rgba(196, 204, 250, 0.5), transparent 72%),
+    radial-gradient(40% 26% at 62% 104%, rgba(214, 222, 255, 0.5), transparent 70%),
+    linear-gradient(180deg, #f8f9fd 0%, #f3f4fb 100%);
 }
 
-.footer-col h5 {
-  margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+/* The arena is the whole panel; the copy rides on top of it. */
+.footer-arena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.footer-col a {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.75);
-  transition: color 0.2s ease;
+.footer-head,
+.footer-meta,
+.footer-hint {
+  position: relative;
+  z-index: 1;
+  /* So a drag that starts on the copy still reaches the canvas. */
+  pointer-events: none;
 }
 
-.footer-col a:hover {
-  color: #fff;
+.footer-play,
+.footer-socials a {
+  pointer-events: auto;
 }
 
-.footer-bottom {
+.footer-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding-top: 32px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  gap: 32px;
   flex-wrap: wrap;
-  gap: 16px;
 }
 
-.footer-bottom p {
+.footer-wordmark {
+  margin: 0;
+  font-size: clamp(44px, 7.4vw, 108px);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  color: rgba(10, 11, 16, 0.22);
+}
+
+.footer-wordmark__sub {
+  color: rgba(10, 11, 16, 0.22);
+}
+
+.footer-pitch {
+  text-align: right;
+}
+
+.footer-pitch p {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 34px);
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: var(--ink-2);
+}
+
+.footer-play {
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease);
+}
+
+.footer-play:hover {
+  opacity: 0.7;
+}
+
+.footer-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: clamp(20px, 3vh, 36px);
+  font-size: clamp(14px, 1.15vw, 17px);
+  color: var(--ink-3);
+}
+
+.footer-meta p {
   margin: 0;
 }
 
-.back-to-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-size: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  cursor: pointer;
-  transition: background 0.2s ease;
+.footer-socials a {
+  color: var(--ink-2);
+  transition: color 0.2s var(--ease);
 }
 
-.back-to-top:hover {
-  background: rgba(255, 255, 255, 0.16);
+.footer-socials a:hover {
+  color: var(--ink);
+}
+
+.footer-socials__sep {
+  padding: 0 10px;
+  color: rgba(10, 11, 16, 0.2);
+}
+
+.slicer-bare,
+.slicer-bare .game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.footer-hint {
+  margin: auto 0 0;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .footer-head {
+    flex-direction: column;
+  }
+  .footer-pitch {
+    text-align: left;
+  }
 }
 
 /* -------------------------------------------------- Responsive Media Queries */

@@ -202,7 +202,7 @@ export default function StateStack() {
       hint="Click or Space to drop"
       overlay={
         phase === 'ready'
-          ? { title: 'State Stack', body: 'Stack the states — Calm, Active, Attention, Success — as high as you can. Overhangs break off. Perfect drops keep their width and play a rising melody.', action: 'Stack', onAction: start }
+          ? { title: 'State Stack', body: 'Stack the states — Calm, Active, Alert, Resolve — as high as you can. Overhangs break off. Perfect drops keep their width and play a rising melody.', action: 'Stack', onAction: start }
           : phase === 'over'
             ? { title: `${score} high`, body: score >= best && score > 0 ? 'New best tower.' : 'The stack slipped.', action: 'Stack again', onAction: start }
             : null

@@ -9,9 +9,9 @@ const ROUNDS = 12
 /* The four states, as the Try OrbitSense section defines them. */
 const MEANING: Record<StateKey, string> = {
   Calm: 'Everything is under control.',
-  Active: 'A conversation is happening.',
-  Attention: 'Something needs action.',
-  Success: 'The conversation moves forward.',
+  Active: 'As you move forward.',
+  Alert: 'Something needs action.',
+  Resolve: 'Upon reaching a conclusion.',
 }
 
 const SCENARIOS: { text: string; state: StateKey }[] = [
@@ -23,14 +23,14 @@ const SCENARIOS: { text: string; state: StateKey }[] = [
   { text: 'A customer is chatting with support.', state: 'Active' },
   { text: 'Generating your Replit prompt…', state: 'Active' },
   { text: 'Syncing payments from the last hour…', state: 'Active' },
-  { text: 'Payment failed: card declined.', state: 'Attention' },
-  { text: 'A KYC document is missing.', state: 'Attention' },
-  { text: 'Your API key expires in 2 days.', state: 'Attention' },
-  { text: 'A refund request needs approval.', state: 'Attention' },
-  { text: 'Invoice #2041 paid in full.', state: 'Success' },
-  { text: 'Onboarding complete.', state: 'Success' },
-  { text: 'Payout of ₹48,000 settled.', state: 'Success' },
-  { text: 'Integration test passed.', state: 'Success' },
+  { text: 'Payment failed: card declined.', state: 'Alert' },
+  { text: 'A KYC document is missing.', state: 'Alert' },
+  { text: 'Your API key expires in 2 days.', state: 'Alert' },
+  { text: 'A refund request needs approval.', state: 'Alert' },
+  { text: 'Invoice #2041 paid in full.', state: 'Resolve' },
+  { text: 'Onboarding complete.', state: 'Resolve' },
+  { text: 'Payout of ₹48,000 settled.', state: 'Resolve' },
+  { text: 'Integration test passed.', state: 'Resolve' },
 ]
 
 const shuffle = <T,>(a: T[]) => {
@@ -128,9 +128,9 @@ export default function MoodMatch() {
       hint="Click a state · or keys 1–4"
       overlay={
         phase === 'ready'
-          ? { title: 'Mood Match', body: 'Ray shows you a moment. Pick the RazorSense state it should feel like — Calm, Active, Attention or Success. Streaks multiply.', action: 'Play', onAction: start }
+          ? { title: 'Mood Match', body: 'Ray shows you a moment. Pick the MyOrbit state it should feel like — Calm, Active, Alert or Resolve. Streaks multiply.', action: 'Play', onAction: start }
           : phase === 'over'
-            ? { title: `${score} points`, body: score >= best && score > 0 ? 'New best. You speak RazorSense.' : 'Every state a feeling — try again.', action: 'Play again', onAction: start }
+            ? { title: `${score} points`, body: score >= best && score > 0 ? 'New best. You speak MyOrbit.' : 'Every state a feeling — try again.', action: 'Play again', onAction: start }
             : null
       }
     >

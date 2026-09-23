@@ -6,10 +6,11 @@ import { GLYPH, GLYPH_BOX } from '../components/glyphShape'
 
 const ID = 'build-glyph'
 const LIVES = 3
-/* Gap lines (bottom x at y=640, rising to the right) split the glyph into
-   six strips; the outer bounds sit well past its edges. */
-const BOUNDS = [80, 225, 280, 335, 390, 445, 620]
-const RISE = (110 * 540) / 460 // x shift from y=640 to y=100
+/* Vertical seams split the mark into six strips. */
+/* Six vertical strips spanning the ring's box (GLYPH_BOX x 178, w 447), with
+   a little margin either side so the end strips clear its edges. */
+const BOUNDS = [166, 243, 320, 397, 474, 551, 637]
+const RISE = 0 // the ring has no slant, so the cuts run straight down
 const TOL = 24 // glyph units of slack for a successful drop
 const GAP = 2.6 // half the seam between strips
 

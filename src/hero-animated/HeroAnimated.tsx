@@ -36,14 +36,14 @@ export default function HeroAnimated({ reducedMotion }: { reducedMotion: boolean
       <motion.div className="center">
         <h1 className="headline">
           <motion.span className="line" variants={rise} initial="hidden" animate="show" custom={1}>
-            Build
+            Build with
           </motion.span>
           <motion.span className="line" variants={rise} initial="hidden" animate="show" custom={2}>
-            in <span className="orbit-word">Orbit.</span>
+            <span className="orbit-word">MyOrbit</span>
           </motion.span>
         </h1>
         <motion.p className="sub" variants={rise} initial="hidden" animate="show" custom={3}>
-          A design system for what’s next.
+          One design language for every conversation.
         </motion.p>
       </motion.div>
     </section>
