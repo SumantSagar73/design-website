@@ -117,7 +117,7 @@ export default function DesignLanguage() {
           {/* "Built for connection". Its last few frames are black, so it loops
               itself just before them instead of using the native loop. */}
           <TrimmedLoopVideo
-            className="glyph-video"
+            className="glyph-video glyph-video--fit"
             src="/Built%20for%20connection.mp4"
             trimEnd={0.15}
             label="Built for connection"

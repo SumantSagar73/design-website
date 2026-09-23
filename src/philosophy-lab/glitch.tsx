@@ -422,13 +422,15 @@ export const GLITCH_VARIANTS: Variant[] = [
     id: 'minimal',
     name: 'Minimal liquid',
     group: 'Liquid',
-    note: 'Reveals on scroll exactly like the live section, then a light touch on hover: the text swells slightly with a faint colour edge and eases back without a wobble.',
+    note: 'Reveals on scroll exactly like the live section, then a pure fish-eye on hover: the text swells under the cursor and eases back. No colour split.',
     /* About a third of the lens's bend, a gentler split, a short soft wake,
        and near-critical damping so the release settles instead of sloshing. */
     Component: make({
-      push: 0.22,
-      pushRadius: 120,
-      split: 0.18,
+      push: 0.28,
+      pushRadius: 130,
+      /* No channel split: the lens only bends the text, never tints it. */
+      split: 0,
+      splitFloor: 0,
       wake: 0.45,
       wakeRadius: 70,
       wakeRelax: 0.5,

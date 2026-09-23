@@ -11,6 +11,7 @@ import MosaicPage from './pages/MosaicPage'
 import HeroLabPage from './pages/HeroLabPage'
 import HeroAnimatedPage from './pages/HeroAnimatedPage'
 import HeroOriginalPage from './pages/HeroOriginalPage'
+import OrbitShowcasePage from './pages/OrbitShowcasePage'
 import PhilosophyLab from './philosophy-lab/PhilosophyLab'
 import GamesLab from './games/GamesLab'
 import { GLITCH_VARIANTS } from './philosophy-lab/glitch'
@@ -85,12 +86,20 @@ export default function App() {
     return path.startsWith('/games') || hash === '#games'
   }
 
+  const getIsOrbitShowcaseRoute = () => {
+    if (typeof window === 'undefined') return false
+    const path = window.location.pathname.toLowerCase()
+    const hash = window.location.hash.toLowerCase()
+    return path.includes('orbit-showcase') || hash === '#orbit-showcase'
+  }
+
   const [isShowcase, setIsShowcase] = useState(getIsShowcaseRoute)
   const [isMosaic, setIsMosaic] = useState(getIsMosaicRoute)
   const [isHeroLab, setIsHeroLab] = useState(getIsHeroLabRoute)
   const [isHeroAnimated, setIsHeroAnimated] = useState(getIsHeroAnimatedRoute)
   const [isHeroOriginal, setIsHeroOriginal] = useState(getIsHeroOriginalRoute)
   const [isGames, setIsGames] = useState(getIsGamesRoute)
+  const [isOrbitShowcase, setIsOrbitShowcase] = useState(getIsOrbitShowcaseRoute)
   const [isPhilosophyLab, setIsPhilosophyLab] = useState(getIsPhilosophyLabRoute)
   const [isPhilosophyGlitch, setIsPhilosophyGlitch] = useState(getIsPhilosophyGlitchRoute)
 
@@ -102,6 +111,7 @@ export default function App() {
       setIsHeroAnimated(getIsHeroAnimatedRoute())
       setIsHeroOriginal(getIsHeroOriginalRoute())
       setIsGames(getIsGamesRoute())
+      setIsOrbitShowcase(getIsOrbitShowcaseRoute())
       setIsPhilosophyLab(getIsPhilosophyLabRoute())
       setIsPhilosophyGlitch(getIsPhilosophyGlitchRoute())
     }
@@ -122,6 +132,7 @@ export default function App() {
     setIsHeroAnimated(false)
     setIsHeroOriginal(false)
     setIsGames(false)
+    setIsOrbitShowcase(false)
     setIsPhilosophyLab(false)
     setIsPhilosophyGlitch(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -140,6 +151,10 @@ export default function App() {
 
   if (isPhilosophyLab) {
     return <PhilosophyLab onBack={navigateToHome} />
+  }
+
+  if (isOrbitShowcase) {
+    return <OrbitShowcasePage onBack={navigateToHome} />
   }
 
   if (isGames) {

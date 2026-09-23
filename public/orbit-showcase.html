@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyOrbit — The Design System for Living Interfaces</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Space Grotesk + Plus Jakarta Sans + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            surface: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+              300: '#CBD5E1',
+            },
+            orbit: {
+              cyan: '#0284C7',
+              cyanLight: '#E0F2FE',
+              blue: '#2563EB',
+              blueLight: '#DBEAFE',
+              indigo: '#4F46E5',
+              violet: '#7C3AED',
+              violetLight: '#F3E8FF',
+              amber: '#D97706',
+              amberLight: '#FEF3C7',
+            }
+          },
+          animation: {
+            'spin-slow': 'spin 38s linear infinite',
+            'spin-reverse-slow': 'spinReverse 48s linear infinite',
+            'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            spinReverse: {
+              '0%': { transform: 'rotate(360deg)' },
+              '100%': { transform: 'rotate(0deg)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+              '50%': { opacity: '0.9', transform: 'scale(1.05)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Luminous Glass Panels for Crisp Light Mode */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.05), 0 0 1px 1px rgba(255, 255, 255, 0.95) inset;
+    }
+    
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.8) 100%);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+    }
+
+    .orbit-ring {
+      border: 1px dashed rgba(148, 163, 184, 0.35);
+      border-radius: 50%;
+    }
+
+    .orbit-ring-solid {
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 50%;
+    }
+
+    /* Ambient dynamic backdrop glow */
+    #ambientGlow, #stageAmbientGlow {
+      transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s ease, opacity 0.8s ease;
+    }
+
+    .radial-mask {
+      mask-image: radial-gradient(circle at center, black 50%, transparent 85%);
+      -webkit-mask-image: radial-gradient(circle at center, black 50%, transparent 85%);
+    }
+
+    /* Active state pill glowing indicator */
+    .active-orbit-pill {
+      background: #FFFFFF !important;
+      font-weight: 700 !important;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#F8FAFD] text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-orbit-blue selection:text-white">
+
+  <!-- Ambient Dynamic Lighting Mesh -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div id="ambientGlow" class="absolute -top-[18%] left-1/2 -translate-x-1/2 w-[980px] h-[780px] rounded-full blur-[150px] opacity-60 bg-gradient-to-tr from-sky-200/50 via-blue-200/40 to-indigo-100/50"></div>
+    <div class="absolute bottom-0 right-[-10%] w-[650px] h-[650px] rounded-full blur-[160px] opacity-40 bg-blue-100/60"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:32px_32px] opacity-25"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-center">
+    <nav class="w-full max-w-6xl glass-panel rounded-full px-6 py-3 flex items-center justify-between shadow-lg shadow-slate-900/[0.03]">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="relative w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-tr from-orbit-blue to-orbit-violet p-[1.5px] shadow-sm shadow-blue-500/20">
+          <div class="w-full h-full bg-white rounded-full flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-orbit-blue shadow-[0_0_8px_#2563EB]"></span>
+          </div>
+          <div class="absolute inset-[-4px] rounded-full border border-orbit-blue/30 animate-spin-slow"></div>
+        </div>
+        <span class="font-display font-bold text-lg tracking-tight text-slate-900 group-hover:text-orbit-blue transition-colors">
+          MyOrbit<span class="text-orbit-blue text-xs ml-1.5 font-mono uppercase tracking-widest px-2 py-0.5 rounded-md border border-orbit-blue/20 bg-blue-50/70 font-semibold">v2.4</span>
+        </span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#philosophy" class="hover:text-slate-900 transition-colors">Philosophy</a>
+        <a href="#interactive-stage" class="hover:text-orbit-blue transition-colors flex items-center gap-2 font-semibold text-slate-900">
+          <span class="w-2 h-2 rounded-full bg-orbit-blue animate-ping"></span>
+          Gravitational Field
+        </a>
+        <a href="#constellation" class="hover:text-slate-900 transition-colors">Components</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="#interactive-stage" class="text-xs font-mono font-medium px-4 py-2 rounded-full border border-slate-200 hover:border-orbit-blue/40 hover:bg-slate-50 transition-all text-slate-600 hover:text-slate-900">
+          Live States
+        </a>
+        <button class="text-xs font-semibold px-4 py-2 rounded-full bg-slate-900 text-white hover:bg-orbit-blue hover:shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all">
+          Explore Tokens
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <section class="relative z-10 pt-36 pb-20 md:pt-44 md:pb-28 px-6 max-w-6xl mx-auto flex flex-col items-center text-center">
+    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-card text-xs font-mono font-semibold text-orbit-blue border border-blue-200/70 mb-8 animate-float shadow-sm">
+      <span class="w-2 h-2 rounded-full bg-orbit-blue animate-pulse"></span>
+      <span>A DESIGN SYSTEM GOVERNED BY GRAVITATIONAL FLOW</span>
+    </div>
+
+    <h1 class="font-display text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight text-slate-950 max-w-4xl leading-[1.05] mb-6">
+      Every component in its <span class="bg-gradient-to-r from-slate-950 via-orbit-blue to-orbit-indigo bg-clip-text text-transparent">natural orbit.</span>
+    </h1>
+
+    <p class="text-slate-600 text-lg md:text-xl max-w-2xl font-normal leading-relaxed mb-10">
+      Moving beyond rigid grids. MyOrbit unifies design tokens, responsive surfaces, and micro-physics into a living, responsive ecosystem crafted for the intelligent era.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-16">
+      <a href="#interactive-stage" class="px-7 py-3.5 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-orbit-blue hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all duration-300">
+        Enter Gravitational Field
+      </a>
+      <a href="#constellation" class="px-7 py-3.5 rounded-full glass-card hover:bg-white text-slate-800 font-semibold text-sm transition-all border border-slate-200 shadow-sm hover:border-blue-200">
+        Inspect Component Library
+      </a>
+    </div>
+
+    <!-- 2D Orbit Core Animation -->
+    <div class="relative w-full max-w-3xl aspect-[16/10] flex items-center justify-center radial-mask select-none mt-2">
+      <div class="absolute w-[92%] h-[92%] orbit-ring-solid"></div>
+      <div class="absolute w-[72%] h-[72%] orbit-ring animate-spin-slow"></div>
+      <div class="absolute w-[48%] h-[48%] orbit-ring-solid"></div>
+      <div class="absolute w-[28%] h-[28%] orbit-ring animate-spin-reverse-slow"></div>
+
+      <!-- Orbiting Satellite 1 -->
+      <div class="absolute w-full h-full animate-spin-slow flex items-center justify-center pointer-events-none">
+        <div class="absolute top-[4%] left-1/2 -translate-x-1/2 pointer-events-auto">
+          <div class="glass-panel px-3.5 py-1.5 rounded-xl border border-blue-200 text-[11px] font-mono font-medium flex items-center gap-2 shadow-md shadow-slate-200 hover:scale-110 transition-transform cursor-pointer bg-white/90">
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+            <span class="text-slate-800">Typography 48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orbiting Satellite 2 -->
+      <div class="absolute w-full h-full animate-spin-reverse-slow flex items-center justify-center pointer-events-none">
+        <div class="absolute right-[14%] top-1/2 -translate-y-1/2 pointer-events-auto">
+          <div class="glass-panel px-3.5 py-1.5 rounded-xl border border-violet-200 text-[11px] font-mono font-medium flex items-center gap-2 shadow-md shadow-slate-200 hover:scale-110 transition-transform cursor-pointer bg-white/90">
+            <span class="w-2 h-2 rounded-full bg-orbit-violet"></span>
+            <span class="text-slate-800">Inertia: 0.16s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orbiting Satellite 3 -->
+      <div class="absolute w-full h-full animate-spin-slow flex items-center justify-center pointer-events-none" style="animation-duration: 25s;">
+        <div class="absolute bottom-[20%] left-[20%] pointer-events-auto">
+          <div class="glass-panel px-3.5 py-1.5 rounded-xl border border-amber-200 text-[11px] font-mono font-medium flex items-center gap-2 shadow-md shadow-slate-200 hover:scale-110 transition-transform cursor-pointer bg-white/90">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-slate-800">Elevation: 24px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Central Core Hub -->
+      <div class="relative z-20 flex flex-col items-center justify-center cursor-pointer group">
+        <div class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-white via-sky-50 to-blue-100 border-2 border-white p-2.5 shadow-[0_15px_40px_rgba(37,99,235,0.18)] flex items-center justify-center group-hover:scale-105 group-hover:shadow-[0_20px_50px_rgba(37,99,235,0.28)] transition-all duration-500">
+          <div class="w-full h-full rounded-full bg-white flex flex-col items-center justify-center relative overflow-hidden border border-blue-200/80 shadow-inner">
+            <div class="absolute inset-0 bg-gradient-to-t from-blue-50/80 via-transparent to-white"></div>
+            <span class="text-2xl font-bold font-display text-slate-900 tracking-wider">CORE</span>
+            <span class="text-[10px] font-mono text-orbit-blue font-bold uppercase tracking-widest mt-0.5">Gravitas</span>
+          </div>
+        </div>
+        <div class="absolute w-48 h-48 rounded-full border border-blue-300/40 animate-ping pointer-events-none" style="animation-duration: 3s;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="philosophy" class="relative z-10 py-24 px-6 max-w-5xl mx-auto border-t border-slate-200/70">
+    <div class="text-xs font-mono uppercase tracking-widest text-slate-500 font-semibold mb-4">01 / The Law of Digital Gravity</div>
+    <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-slate-950 leading-tight">
+      Built for interfaces in the intelligent era. <span class="text-slate-400 font-normal">MyOrbit treats visual elements not as static blocks, but as gravitational bodies—holding balance, maintaining tension, and moving with natural inertia.</span>
+    </h2>
+  </section>
+
+  <!-- ================= SECTION 3: MINIMAL ORBITAL ARC STATES ================= -->
+  <section id="interactive-stage" class="relative z-10 py-16 md:py-20 px-6 max-w-5xl mx-auto">
+    
+    <!-- Minimal Stage Canvas -->
+    <div id="interactiveStageContainer" class="w-full relative min-h-[400px] sm:min-h-[440px] rounded-[2.5rem] p-6 sm:p-12 flex flex-col items-center justify-center overflow-hidden border border-sky-100/90 shadow-[0_20px_50px_-15px_rgba(2,132,199,0.07)] bg-gradient-to-b from-[#F2F7FD] via-[#F8FBFE] to-[#EDF4FC] transition-all duration-700 select-none">
+      
+      <!-- Subtle Ambient Fluid Glow -->
+      <div id="stageBacklight" class="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[340px] rounded-full blur-[100px] opacity-70 bg-sky-200/40 pointer-events-none transition-all duration-700"></div>
+
+      <!-- Concentric Orbital Lines that arc upward -->
+      <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-80" viewBox="0 0 1000 480" fill="none" preserveAspectRatio="xMidYMid slice">
+        <circle cx="500" cy="560" r="290" stroke="rgba(2, 132, 199, 0.10)" stroke-width="1" />
+        <circle id="orbitLineMain" cx="500" cy="560" r="390" stroke="rgba(2, 132, 199, 0.22)" stroke-width="1.2" class="transition-colors duration-700" />
+        <circle cx="500" cy="560" r="490" stroke="rgba(2, 132, 199, 0.08)" stroke-width="1" />
+      </svg>
+
+      <!-- The 4 Orbit States: Natural Arc Placement along the Orbit Path -->
+      <div class="relative z-10 flex items-center justify-center gap-2.5 sm:gap-3.5 mb-10 sm:mb-12">
+        
+        <!-- Calm Pill -->
+        <button onclick="switchState('calm')" id="btn-calm" class="state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 bg-white text-slate-900 shadow-md shadow-sky-900/5 border border-white translate-y-2 sm:translate-y-2.5 scale-105">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="pill-dot w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+            Calm
+          </span>
+        </button>
+
+        <!-- Active Pill -->
+        <button onclick="switchState('active')" id="btn-active" class="state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 bg-white/45 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white/70 border border-white/50 -translate-y-0.5">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="pill-dot hidden w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+            Active
+          </span>
+        </button>
+
+        <!-- Attention Pill -->
+        <button onclick="switchState('attention')" id="btn-attention" class="state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 bg-white/45 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white/70 border border-white/50 -translate-y-0.5">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="pill-dot hidden w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Attention
+          </span>
+        </button>
+
+        <!-- Success Pill -->
+        <button onclick="switchState('success')" id="btn-success" class="state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 bg-white/45 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white/70 border border-white/50 translate-y-2 sm:translate-y-2.5">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="pill-dot hidden w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Success
+          </span>
+        </button>
+
+      </div>
+
+      <!-- Minimalist Dynamic Caption Text -->
+      <div class="relative z-10 text-center px-4 max-w-lg min-h-[32px] flex items-center justify-center">
+        <p id="stateCaptionText" class="text-slate-700 text-base sm:text-lg font-normal tracking-tight transition-all duration-300">
+          When everything is under control.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= COMPONENT CONSTELLATION ================= -->
+  <section id="constellation" class="relative z-10 py-24 px-6 max-w-6xl mx-auto border-t border-slate-200/70">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <div class="text-xs font-mono uppercase tracking-widest text-orbit-blue font-semibold mb-2">03 / The Component Constellation</div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-slate-950 mb-4">
+        Every detail, deliberate.
+      </h2>
+      <p class="text-slate-600 text-base">
+        Atomic primitives configured to harmonize effortlessly across luminous, clear surfaces.
+      </p>
+    </div>
+
+    <!-- 4 Floating UI Cards in Light Theme -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <!-- Card 1: Kinetic Analytics -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-200 hover:border-sky-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-sky-500/5">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-mono text-slate-500 font-semibold">GRAVITY LOAD</span>
+          <span class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_#0284C7]"></span>
+        </div>
+        <div class="text-3xl font-display font-bold text-slate-950 mb-1">99.4%</div>
+        <p class="text-xs text-slate-500 mb-4">System equilibrium sustained</p>
+        <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+          <div class="h-full bg-gradient-to-r from-sky-500 to-blue-600 w-[94%] rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Interactive Segmented Pill -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-200 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/5">
+        <div class="text-xs font-mono text-slate-500 font-semibold mb-4">MOTION PROFILE</div>
+        <div class="bg-slate-100 p-1.5 rounded-xl border border-slate-200 flex text-xs font-semibold text-slate-600 mb-4">
+          <button class="flex-1 py-1.5 rounded-lg bg-white text-slate-950 font-mono text-[11px] shadow-sm">Ease</button>
+          <button class="flex-1 py-1.5 rounded-lg hover:text-slate-900 font-mono text-[11px]">Spring</button>
+          <button class="flex-1 py-1.5 rounded-lg hover:text-slate-900 font-mono text-[11px]">Linear</button>
+        </div>
+        <div class="text-[11px] font-mono text-blue-600 font-semibold">bezier(0.16, 1, 0.3, 1)</div>
+      </div>
+
+      <!-- Card 3: Dynamic Surface Elevation Card -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-200 hover:border-violet-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/5">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-mono text-slate-500 font-semibold">SURFACE ELEVATION</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 font-bold border border-purple-200">LVL 4</span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-gradient-to-tr from-purple-50 via-white to-sky-50 border border-purple-200 text-xs font-semibold text-slate-900 mb-2 flex items-center justify-between shadow-sm">
+          <span>Glassmorphic Node</span>
+          <span class="font-mono text-[10px] text-slate-500">40px blur</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Reflects active ambient light source.</div>
+      </div>
+
+      <!-- Card 4: Action Node Trigger -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-200 hover:border-amber-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/5 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-mono text-slate-500 font-semibold mb-2">TRIGGER DISPATCH</div>
+          <div class="text-lg font-display font-bold text-slate-950 mb-1">Pulse Sync</div>
+          <div class="text-xs text-slate-600">Synchronize all orbiting child micro-frontends.</div>
+        </div>
+        <button class="mt-4 w-full py-2.5 rounded-xl font-semibold text-xs bg-slate-900 text-white hover:bg-orbit-blue transition-colors shadow-sm">
+          Dispatch Waveform
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= CLOSING BRAND SHOWREEL ================= -->
+  <section class="relative z-10 py-32 px-6 max-w-6xl mx-auto text-center border-t border-slate-200/70">
+    <div class="relative inline-block">
+      <div class="font-display font-black text-6xl sm:text-8xl md:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-slate-900 via-slate-700 to-slate-300 select-none">
+        MyOrbit
+      </div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-16 border-t-2 border-b-2 border-sky-400/60 rounded-[100%] rotate-[-8deg] pointer-events-none shadow-[0_0_20px_rgba(56,189,248,0.25)]"></div>
+    </div>
+    <p class="text-slate-500 font-mono text-sm mt-6">
+      Precision engineering for boundless digital ecosystems.
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-slate-200/80 py-8 px-6 text-center text-xs font-mono text-slate-500 bg-white/50 backdrop-blur-md">
+    <div>MyOrbit Design Language © 2026. Designed with Gravitational Physics.</div>
+  </footer>
+
+  <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
+  <script>
+    const orbitalStates = {
+      calm: {
+        text: 'When everything is under control.',
+        containerBg: 'bg-gradient-to-b from-[#F2F7FD] via-[#F8FBFE] to-[#EDF4FC]',
+        glowColor: 'bg-sky-200/40',
+        lineStroke: 'rgba(2, 132, 199, 0.22)',
+        dotColor: 'bg-sky-500'
+      },
+      active: {
+        text: 'In continuous flow. Data streaming without friction.',
+        containerBg: 'bg-gradient-to-b from-[#F0F5FF] via-[#F7FAFF] to-[#E9F0FE]',
+        glowColor: 'bg-blue-200/40',
+        lineStroke: 'rgba(37, 99, 235, 0.25)',
+        dotColor: 'bg-blue-600'
+      },
+      attention: {
+        text: 'Guiding focus where critical intervention is required.',
+        containerBg: 'bg-gradient-to-b from-[#FFFDF7] via-[#FFFDF5] to-[#FDF8EE]',
+        glowColor: 'bg-amber-200/35',
+        lineStroke: 'rgba(217, 119, 6, 0.25)',
+        dotColor: 'bg-amber-500'
+      },
+      success: {
+        text: 'Delight in completion. Trajectory locked and secured.',
+        containerBg: 'bg-gradient-to-b from-[#F2FDF8] via-[#F7FDFB] to-[#ECFAF2]',
+        glowColor: 'bg-emerald-200/35',
+        lineStroke: 'rgba(16, 185, 129, 0.25)',
+        dotColor: 'bg-emerald-500'
+      }
+    };
+
+    function switchState(key) {
+      const state = orbitalStates[key];
+      if (!state) return;
+
+      // Smooth Caption Transition
+      const caption = document.getElementById('stateCaptionText');
+      caption.style.opacity = '0';
+      caption.style.transform = 'translateY(3px)';
+
+      setTimeout(() => {
+        caption.textContent = state.text;
+        caption.style.opacity = '1';
+        caption.style.transform = 'translateY(0)';
+      }, 150);
+
+      // Subtle Background & Ambient Backlight adjustment
+      const container = document.getElementById('interactiveStageContainer');
+      container.className = `w-full relative min-h-[400px] sm:min-h-[440px] rounded-[2.5rem] p-6 sm:p-12 flex flex-col items-center justify-center overflow-hidden border border-sky-100/90 shadow-[0_20px_50px_-15px_rgba(2,132,199,0.07)] transition-all duration-700 select-none ${state.containerBg}`;
+
+      const glow = document.getElementById('stageBacklight');
+      glow.className = `absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[340px] rounded-full blur-[100px] opacity-70 pointer-events-none transition-all duration-700 ${state.glowColor}`;
+
+      // Update Orbit line stroke
+      const orbitLine = document.getElementById('orbitLineMain');
+      if (orbitLine) {
+        orbitLine.setAttribute('stroke', state.lineStroke);
+      }
+
+      // Update Pill Button Classes while preserving the arc curvature translation
+      const allKeys = ['calm', 'active', 'attention', 'success'];
+      allKeys.forEach(k => {
+        const btn = document.getElementById(`btn-${k}`);
+        const dot = btn.querySelector('.pill-dot');
+        const isOuter = (k === 'calm' || k === 'success');
+        const curveOffset = isOuter ? 'translate-y-2 sm:translate-y-2.5' : '-translate-y-0.5';
+
+        if (k === key) {
+          btn.className = `state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 bg-white text-slate-900 shadow-md shadow-slate-900/5 border border-white ${curveOffset} scale-105`;
+          if (dot) {
+            dot.className = `pill-dot w-1.5 h-1.5 rounded-full ${state.dotColor}`;
+            dot.classList.remove('hidden');
+          }
+        } else {
+          btn.className = `state-pill relative px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 bg-white/45 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white/70 border border-white/50 ${curveOffset}`;
+          if (dot) {
+            dot.classList.add('hidden');
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

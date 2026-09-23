@@ -46,10 +46,47 @@ const STATES: Record<StateKey, StateConfig> = {
   },
 }
 
+/* V2 — the orbit-showcase stage (public/orbit-showcase.html): a semicircle
+   of orbit arcs rising from below, with the state pills sitting on that arc.
+   Colours, gradients and captions are copied from it unchanged. */
+const V2: Record<StateKey, { bg: string; glow: string; line: string; dot: string; caption: string }> = {
+  Calm: {
+    bg: 'linear-gradient(180deg, #F2F7FD 0%, #F8FBFE 55%, #EDF4FC 100%)',
+    glow: 'rgba(186, 230, 253, 0.4)',
+    line: 'rgba(2, 132, 199, 0.22)',
+    dot: '#0ea5e9',
+    caption: 'When everything is under control.',
+  },
+  Active: {
+    bg: 'linear-gradient(180deg, #F0F5FF 0%, #F7FAFF 55%, #E9F0FE 100%)',
+    glow: 'rgba(191, 219, 254, 0.4)',
+    line: 'rgba(37, 99, 235, 0.25)',
+    dot: '#2563eb',
+    caption: 'In continuous flow. Data streaming without friction.',
+  },
+  Attention: {
+    bg: 'linear-gradient(180deg, #FFFDF7 0%, #FFFDF5 55%, #FDF8EE 100%)',
+    glow: 'rgba(253, 230, 138, 0.35)',
+    line: 'rgba(217, 119, 6, 0.25)',
+    dot: '#f59e0b',
+    caption: 'Guiding focus where critical intervention is required.',
+  },
+  Success: {
+    bg: 'linear-gradient(180deg, #F2FDF8 0%, #F7FDFB 55%, #ECFAF2 100%)',
+    glow: 'rgba(167, 243, 208, 0.35)',
+    line: 'rgba(16, 185, 129, 0.25)',
+    dot: '#10b981',
+    caption: 'Delight in completion. Trajectory locked and secured.',
+  },
+}
+
 export default function TryOrbitSense() {
   const [active, setActive] = useState<StateKey>('Calm')
+  /* v1 is the live design; v2 is the orbit-showcase arc, side by side to compare. */
+  const [variant, setVariant] = useState<'v1' | 'v2'>('v1')
 
   const st = STATES[active]
+  const v2 = V2[active]
   const count = 5
   const stateKeys = Object.keys(STATES) as StateKey[]
 
@@ -70,7 +107,77 @@ export default function TryOrbitSense() {
           </p>
         </div>
 
-        {/* The Card Stage */}
+        {/* Compare the live stage with the orbit-showcase arc. */}
+        <div className="try-variant-switch" role="tablist" aria-label="Stage design">
+          {(['v1', 'v2'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              aria-selected={variant === v}
+              className={`try-variant-btn ${variant === v ? 'is-active' : ''}`}
+              onClick={() => setVariant(v)}
+            >
+              {v === 'v1' ? 'V1 · Rings' : 'V2 · Orbit arc'}
+            </button>
+          ))}
+        </div>
+
+        {variant === 'v2' ? (
+          /* ---------------------------------------------- V2: orbit arc */
+          <div className="tryv2-stage" style={{ background: v2.bg }}>
+            <div className="tryv2-backlight" style={{ background: v2.glow }} />
+
+            {/* Concentric arcs centred below the card, so only their tops show.
+                They breathe outward at the state's own tempo, like the V1 rings. */}
+            <svg className="tryv2-arcs" viewBox="0 0 1000 480" fill="none" preserveAspectRatio="xMidYMid slice">
+              {[
+                { r: 290, stroke: 'rgba(2, 132, 199, 0.10)', width: 1 },
+                { r: 390, stroke: v2.line, width: 1.2 },
+                { r: 490, stroke: 'rgba(2, 132, 199, 0.08)', width: 1 },
+              ].map((arc, i) => (
+                <circle
+                  key={arc.r}
+                  className="tryv2-arc"
+                  cx="500"
+                  cy="560"
+                  r={arc.r}
+                  stroke={arc.stroke}
+                  strokeWidth={arc.width}
+                  style={{
+                    animationDuration: `${st.dur}s`,
+                    animationDelay: `${(i * st.dur) / 6}s`,
+                  }}
+                />
+              ))}
+            </svg>
+
+            {/* Pills sit on the arc: the outer two ride lower than the inner two. */}
+            <div className="tryv2-pills">
+              {stateKeys.map((name, i) => {
+                const on = name === active
+                const outer = i === 0 || i === stateKeys.length - 1
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`tryv2-pill ${on ? 'is-active' : ''} ${outer ? 'is-outer' : ''}`}
+                    onClick={() => setActive(name)}
+                    aria-pressed={on}
+                  >
+                    {on && <span className="tryv2-dot" style={{ background: v2.dot }} />}
+                    {name}
+                  </button>
+                )
+              })}
+            </div>
+
+            <p className="tryv2-caption" key={active}>
+              {v2.caption}
+            </p>
+          </div>
+        ) : (
+        /* ---------------------------------------------- V1: the live rings */
         <div
           className="try-card"
           style={{
@@ -153,6 +260,7 @@ export default function TryOrbitSense() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </section>
   )
