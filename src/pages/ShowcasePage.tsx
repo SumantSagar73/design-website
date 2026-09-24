@@ -90,7 +90,7 @@ export default function ShowcasePage({ onBack }: { onBack?: () => void }) {
               className="mosaic-back-button"
             >
               <ArrowLeft className="w-4 h-4 mr-1.5" />
-              <span>Back to OrbitSense</span>
+              <span>Back to MyOrbit</span>
             </button>
             <div className="mosaic-breadcrumb">
               <span className="breadcrumb-slash">/</span>

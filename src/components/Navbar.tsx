@@ -8,7 +8,7 @@ export type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'design-philosophy', label: 'Design Philosophy' },
-  { id: 'try-orbitsense', label: 'Try OrbitSense' },
+  { id: 'try-myorbit', label: 'Try MyOrbit' },
   { id: 'design-language', label: 'Design Language' },
   { id: 'watch-video', label: 'Watch Video' },
 ]
@@ -174,19 +174,13 @@ export default function Navbar() {
           onClick={scrollToTop}
           aria-label="MyOrbit Home"
         >
-          <svg className="navbar-logo-icon" viewBox="0 0 32 32" aria-hidden="true">
-            <circle
-              cx="16"
-              cy="16"
-              r="12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              strokeDasharray="68.4 7"
-              transform="rotate(-64 16 16)"
-            />
-          </svg>
+          <img
+            src="/myorbit-logo.png"
+            alt="MyOrbit Logo"
+            className="navbar-logo-icon"
+            width={32}
+            height={32}
+          />
           <span className="navbar-brand-name">MyOrbit</span>
         </button>
 

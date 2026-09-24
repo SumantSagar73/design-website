@@ -17,14 +17,18 @@ function TrimmedLoopVideo({ src, trimEnd, className, label }: { src: string; tri
     const v = ref.current
     if (!v) return
     let raf = 0
-    const tick = () => {
+    const checkTrim = () => {
       if (v.duration && v.currentTime >= v.duration - trimEnd) {
         v.currentTime = 0
         void v.play().catch(() => {})
       }
+    }
+    const tick = () => {
+      checkTrim()
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
+    v.addEventListener('timeupdate', checkTrim)
     /* backstop: if it ever does reach the end, restart immediately */
     const onEnded = () => {
       v.currentTime = 0
@@ -33,6 +37,7 @@ function TrimmedLoopVideo({ src, trimEnd, className, label }: { src: string; tri
     v.addEventListener('ended', onEnded)
     return () => {
       cancelAnimationFrame(raf)
+      v.removeEventListener('timeupdate', checkTrim)
       v.removeEventListener('ended', onEnded)
     }
   }, [trimEnd])
@@ -68,17 +73,12 @@ export default function DesignLanguage() {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 1, ease: EASE }}
         >
-          {/* The MyOrbit logo animation, looping silently. Muted + playsInline
-              are what let browsers autoplay it, including on iOS. */}
-          <video
+          {/* The MyOrbit logo animation. TrimmedLoopVideo cuts off the black tail frames at the end of the video before looping. */}
+          <TrimmedLoopVideo
             className="glyph-video"
             src="/MyOrbit%20Logo.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-label="MyOrbit logo animation"
+            trimEnd={0.18}
+            label="MyOrbit logo animation"
           />
         </motion.div>
       </div>

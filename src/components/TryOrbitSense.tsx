@@ -56,7 +56,7 @@ export default function TryOrbitSense() {
   const stateKeys = Object.keys(STATES) as StateKey[]
 
   return (
-    <section id="try-orbitsense" className="try-section-wrapper">
+    <section id="try-myorbit" className="try-section-wrapper">
       <div className="try-outer-container">
         {/* Top Header Row Matching Reference Image */}
         <div className="try-header-row">
