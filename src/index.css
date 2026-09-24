@@ -110,6 +110,10 @@ ol {
   min-width: 0;
   width: min(87vw, 139vh);
   aspect-ratio: 1672 / 941;
+  /* Scaled from the top edge, so the extra size runs downward and the orbit
+     never creeps up behind the navbar. */
+  transform: scale(1.05);
+  transform-origin: 50% 0%;
   transform-style: preserve-3d;
   will-change: transform;
 }
@@ -307,11 +311,15 @@ ol {
 
 .sub {
   margin: clamp(14px, 1.8vw, 24px) 0 0;
-  max-width: 350px;
-  font-size: clamp(17px, 1.6vw, 25px);
+  max-width: 92vw;
+  /* The 4.7vw term (rather than the 1.6vw the rest of the hero type uses) is
+     what keeps the whole sentence on one line down to phone widths, instead
+     of clamping flat at 17px and wrapping. */
+  font-size: clamp(13px, 4.7vw, 25px);
   font-weight: 400;
   letter-spacing: -0.012em;
   color: #22252e;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------- Liquid manifesto lens
@@ -768,27 +776,15 @@ ol {
     backdrop-filter 0.45s var(--ease);
 }
 
-/* At the top of the hero the navbar is a flat bar pinned to the top edge,
-   spanning the full width and letting the hero show through. Scrolling
-   past a few pixels drops the .is-top class and the rules above take over,
-   so it eases into the floating card. */
-.navbar-wrapper.is-top {
-  padding: 0;
-}
+/* The navbar used to go transparent and full-width at the very top of the
+   hero (an .is-top state), easing into this opaque card once scrolled. It
+   read differently between dev and the deployed site, so it's removed: the
+   navbar is now always this same opaque white card, at any scroll position.
+   Navbar.tsx still toggles .is-top/.is-scrolled for other reasons; neither
+   changes how this looks any more. */
 
-.navbar-wrapper.is-top .floating-navbar {
-  max-width: 100%;
-  height: 72px;
-  padding: 0 var(--gutter);
-  border-radius: 0;
-  border-color: transparent;
-  background: rgba(255, 255, 255, 0);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-
-.navbar-wrapper.is-scrolled .floating-navbar:hover {
+.navbar-wrapper.is-scrolled .floating-navbar:hover,
+.navbar-wrapper.is-top .floating-navbar:hover {
   background: rgba(255, 255, 255, 0.95);
   box-shadow:
     0 16px 44px -8px rgba(25, 42, 86, 0.14),
@@ -1283,7 +1279,8 @@ ol {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 440px;
+  /* Same formula as .try-card, so switching V1 ↔ V2 never resizes the card. */
+  height: clamp(400px, calc(100svh - 300px), 560px);
   padding: clamp(24px, 4vw, 48px);
   border-radius: 2.5rem;
   overflow: hidden;
@@ -1363,9 +1360,10 @@ ol {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 24px;
+  /* Matches .try-tab (V1's pills) so the two stages read as the same scale. */
+  padding: 16px 34px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 500;
   color: #475569;
   background: rgba(255, 255, 255, 0.45);
@@ -1392,11 +1390,13 @@ ol {
   color: #0f172a;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-  transform: translateY(-2px) scale(1.05);
+  /* No scale: it's what made the active pill measurably bigger than V1's,
+     which only recolours on select. */
+  transform: translateY(-2px);
 }
 
 .tryv2-pill.is-active.is-outer {
-  transform: translateY(10px) scale(1.05);
+  transform: translateY(10px);
 }
 
 .tryv2-dot {
@@ -1982,15 +1982,6 @@ ol {
   text-align: center;
 }
 
-.ds-eyebrow {
-  margin: 0;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 3.6px;
-  color: #93a6cf;
-}
-
 .ds-title {
   margin: 0;
   font-size: clamp(30px, 3.5vw, 50px);
@@ -2247,7 +2238,7 @@ ol {
   gap: 11px;
   padding: 19px 34px;
   border-radius: 10px;
-  background: #343e55;
+  background: linear-gradient(180deg, #3f4a63 0%, #2f3849 100%);
   box-shadow: 0 16px 32px -12px rgba(51, 61, 84, 0.6);
   font-size: 18px;
   line-height: 25px;
@@ -2257,28 +2248,33 @@ ol {
   animation: ds-press 4s var(--ease) infinite;
   transition:
     transform 0.2s var(--ease),
-    background-color 0.25s var(--ease),
+    background 0.25s var(--ease),
     box-shadow 0.25s var(--ease);
 }
 
+/* A running (or merely paused) animation still wins over these states' own
+   transform/box-shadow, since it's the one actively driving those
+   properties — pausing it isn't enough. Turning it off here is what lets
+   :hover's shadow and :active's press-and-scale actually show. */
 .ds-btn-primary:hover,
+.ds-btn-primary:active,
 .ds-btn-primary.is-busy,
 .ds-btn-primary.is-done {
-  animation-play-state: paused;
+  animation: none;
 }
 
 .ds-btn-primary:hover {
-  background: #2b3448;
+  background: linear-gradient(180deg, #333e55 0%, #262e3f 100%);
   box-shadow: 0 20px 38px -12px rgba(51, 61, 84, 0.66);
 }
 
 .ds-btn-primary:active {
-  transform: translateY(2px);
+  transform: translateY(2px) scale(0.97);
   box-shadow: 0 8px 18px -12px rgba(51, 61, 84, 0.6);
 }
 
 .ds-btn-primary.is-done {
-  background: #0f7a4d;
+  background: linear-gradient(180deg, #12925d 0%, #0c6b42 100%);
   box-shadow: 0 16px 32px -12px rgba(6, 118, 71, 0.55);
 }
 
@@ -2320,6 +2316,17 @@ ol {
 .ds-card--loading .ds-card__sub {
   font-size: 16.314px;
   line-height: 15.937px;
+}
+
+/* "Fetching call logs…" carries the same sweep as the skeleton bars below
+   it, clipped to the text itself, so the headline reads as loading too. */
+.ds-card--loading:not(.is-loaded) .ds-card__title {
+  background: linear-gradient(100deg, #181d27 30%, #aab6cc 50%, #181d27 70%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ds-text-shimmer 2.2s ease-in-out infinite;
 }
 
 .ds-skeleton-wrap {
@@ -2615,15 +2622,29 @@ ol {
 }
 
 .ds-progressbar__fill {
+  position: relative;
   display: block;
   height: 100%;
   border-radius: 4px;
+  overflow: hidden;
   background: linear-gradient(90deg, #4275d6 0%, #c4d4f2 100%);
   transition: width 0.11s linear;
 }
 
 .ds-progressbar__fill.is-done {
   background: linear-gradient(90deg, #067647 0%, #abefc6 100%);
+}
+
+/* While the upload holds mid-way, the same shimmer sweep the skeleton uses
+   (.ds-sk::after) plays across the filled portion, so the pause still reads
+   as "working" rather than stuck. */
+.ds-progressbar__fill.is-stalling::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  transform: translateX(-100%);
+  animation: ds-shimmer 1.1s ease-in-out infinite;
 }
 
 /* ---------------------------------------------------------- 04 - Progress */
@@ -2977,11 +2998,6 @@ ol {
   width: 100%;
   text-align: left;
   border-radius: 8px;
-  transition: background-color 0.25s var(--ease);
-}
-
-.ds-step:hover {
-  background: rgba(66, 117, 214, 0.06);
 }
 
 .ds-step:not(:last-child) {
@@ -2989,66 +3005,104 @@ ol {
   min-height: 0;
 }
 
+/* A size down from the design's default: the dot, rail and connector are
+   all ~15% smaller, which reads calmer at this tile's scale. */
 .ds-step__rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7.109px;
+  gap: 6px;
   flex: none;
-  width: 23.696px;
+  width: 20px;
   align-self: stretch;
 }
 
+/* The ring is a box-shadow, not a border: border-width can't be animated
+   smoothly, so a step change used to snap. */
 .ds-step__dot {
+  position: relative;
   display: grid;
   place-items: center;
   flex: none;
-  width: 23.696px;
-  height: 23.696px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: #fff;
+  box-shadow: inset 0 0 0 1px #ebecee;
   transition:
-    background-color 0.35s var(--ease),
-    border-color 0.35s var(--ease);
+    background-color 0.7s var(--ease),
+    box-shadow 0.7s var(--ease);
+}
+
+/* The inner pip a to-do step carries; it shrinks away as the step activates. */
+.ds-step__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #ebecee;
+  transform: scale(0.3);
+  transition:
+    transform 0.7s var(--ease),
+    opacity 0.5s var(--ease);
 }
 
 .ds-step__dot img {
+  position: relative;
   display: block;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.4s var(--ease),
+    transform 0.55s var(--ease);
+}
+
+.is-current .ds-step__dot {
+  box-shadow: inset 0 0 0 6px #4275d6;
+}
+
+.is-current .ds-step__dot::after,
+.is-done .ds-step__dot::after {
+  transform: scale(0);
+  opacity: 0;
 }
 
 .is-done .ds-step__dot {
   background: #4275d6;
+  box-shadow: inset 0 0 0 0 #4275d6;
 }
 
-.is-current .ds-step__dot {
-  border: 7.109px solid #4275d6;
+.is-done .ds-step__dot img {
+  opacity: 1;
+  transform: scale(1);
 }
 
-.is-todo .ds-step__dot {
-  border: 1.185px solid #ebecee;
-  padding: 7.109px;
-}
-
-.is-todo .ds-step__dot::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 999px;
-  background: #ebecee;
-}
-
+/* The connector fills downward rather than recolouring in place, so progress
+   reads as one continuous motion between steps. A transform (rather than the
+   old height animation, which triggers layout every frame) is what makes
+   this composite smoothly instead of looking stepped. */
 .ds-step__line {
+  position: relative;
   flex: 1;
-  width: 2.37px;
+  width: 2px;
   min-height: 12px;
   border-radius: 999px;
   background: #e9eaeb;
-  transition: background-color 0.35s var(--ease);
+  overflow: hidden;
 }
 
-.is-done .ds-step__line {
+.ds-step__line-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
   background: #4275d6;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1.1s var(--ease);
+}
+
+.is-done .ds-step__line-fill {
+  transform: scaleY(1);
 }
 
 .ds-step__text {
@@ -3056,15 +3110,15 @@ ol {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  gap: 2.37px;
-  padding: 0 14.218px;
+  gap: 2px;
+  padding: 0 12px;
 }
 
 .ds-step__title,
 .ds-step__desc {
   margin: 0;
-  font-size: 14.22px;
-  transition: color 0.35s var(--ease);
+  font-size: 13px;
+  transition: color 0.55s var(--ease);
 }
 
 .ds-step__title {
@@ -3090,6 +3144,15 @@ ol {
   60%,
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes ds-text-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -120% 0;
   }
 }
 
@@ -3134,15 +3197,15 @@ ol {
   0%,
   72%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     box-shadow: 0 16px 32px -12px rgba(51, 61, 84, 0.6);
   }
   78% {
-    transform: translateY(3px);
+    transform: translateY(3px) scale(0.97);
     box-shadow: 0 8px 18px -12px rgba(51, 61, 84, 0.6);
   }
   86% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     box-shadow: 0 16px 32px -12px rgba(51, 61, 84, 0.6);
   }
 }
@@ -3153,8 +3216,20 @@ ol {
   .ds-empty__bg,
   .ds-empty__avatar,
   .ds-btn-primary,
-  .ds-toast {
+  .ds-toast,
+  .ds-progressbar__fill.is-stalling::after {
     animation: none;
+  }
+
+  /* Just turning off the animation would freeze the gradient mid-sweep,
+     which can land on a half-light, half-dark, barely-readable slice.
+     Drop back to plain solid text instead. */
+  .ds-card--loading:not(.is-loaded) .ds-card__title {
+    animation: none;
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: #181d27;
   }
 }
 
@@ -3320,7 +3395,9 @@ ol {
 
 .footer-wordmark {
   margin: 0;
-  font-size: clamp(44px, 7.4vw, 108px);
+  /* A touch down from the full clamp(44px, 7.4vw, 108px) — still the
+     biggest text on the page, just not quite so overwhelming. */
+  font-size: clamp(38px, 6.4vw, 92px);
   font-weight: 400;
   line-height: 0.96;
   letter-spacing: -0.045em;
@@ -3343,20 +3420,32 @@ ol {
   color: var(--ink-2);
 }
 
+/* A coloured highlight chip, not plain underlined text — it needs to read
+   as the one clickable word in the sentence, not just more copy. */
 .footer-play {
-  padding: 0;
+  padding: 0.05em 0.42em 0.12em;
+  margin: 0 0.02em;
   font: inherit;
-  color: var(--ink);
-  background: none;
+  font-weight: 600;
+  color: #3c4a9e;
+  background: rgba(60, 74, 158, 0.14);
   border: 0;
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
+  border-radius: 0.32em;
+  text-decoration: none;
   cursor: pointer;
-  transition: opacity 0.2s var(--ease);
+  transition:
+    background-color 0.2s var(--ease),
+    color 0.2s var(--ease),
+    transform 0.2s var(--ease);
 }
 
 .footer-play:hover {
-  opacity: 0.7;
+  background: rgba(60, 74, 158, 0.22);
+  color: #2f3b80;
+}
+
+.footer-play:active {
+  transform: scale(0.96);
 }
 
 .footer-meta {
@@ -3426,9 +3515,6 @@ ol {
   .floating-navbar {
     padding: 0 18px;
     height: 54px;
-  }
-  .navbar-wrapper.is-top .floating-navbar {
-    height: 60px;
   }
   .sandbox-toolbar {
     flex-direction: column;

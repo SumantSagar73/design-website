@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -175,24 +175,63 @@ function LoadingTile() {
 
 type UploadMode = 'loop' | 'run' | 'done' | 'empty'
 
+/* Where the bar pauses to "catch its breath" and how long it holds there. */
+const STALL_AT = 42
+const STALL_MS = 1400
+const STEP_MS = 110
+
 function UploadTile({ animate }: { animate: boolean }) {
   const [pct, setPct] = useState(20)
   const [mode, setMode] = useState<UploadMode>(animate ? 'loop' : 'done')
+  const [stalling, setStalling] = useState(false)
 
-  /* Idles on a loop until someone drives it, then it runs once and settles. */
+  /* Idles on a loop until someone drives it, then it runs once and settles.
+     On the way up it pauses once, like a real upload catching its breath —
+     the bar shows a moving gradient sweep (below) instead of just sitting
+     still — then resumes to completion. A recursive timeout, rather than a
+     plain interval, is what lets it hold mid-sequence like that. */
   useEffect(() => {
     if (mode !== 'loop' && mode !== 'run') return
-    const id = window.setInterval(() => {
-      setPct((p) => {
-        if (p < 100) return Math.min(100, p + 2)
+    let cancelled = false
+    let timer = 0
+    let stalledThisPass = false
+
+    const step = (current: number) => {
+      if (cancelled) return
+      if (!stalledThisPass && current >= STALL_AT) {
+        stalledThisPass = true
+        setStalling(true)
+        timer = window.setTimeout(() => {
+          setStalling(false)
+          timer = window.setTimeout(() => step(current), STEP_MS)
+        }, STALL_MS)
+        return
+      }
+      if (current >= 100) {
         if (mode === 'run') {
           setMode('done')
-          return 100
+          setPct(100)
+          return
         }
-        return 0
-      })
-    }, 110)
-    return () => window.clearInterval(id)
+        stalledThisPass = false
+        setPct(0)
+        timer = window.setTimeout(() => step(0), STEP_MS)
+        return
+      }
+      const next = Math.min(100, current + 2)
+      setPct(next)
+      timer = window.setTimeout(() => step(next), STEP_MS)
+    }
+
+    timer = window.setTimeout(() => step(pct), STEP_MS)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+    // pct is only read as the chain's starting point when `mode` changes
+    // (start() sets both together); including it here would restart the
+    // whole chain on every tick instead of letting it run to completion.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode])
 
   /* Roughly 15 s for a full bar, so the countdown tracks what the bar shows. */
@@ -262,7 +301,7 @@ function UploadTile({ animate }: { animate: boolean }) {
               </div>
               <div className="ds-progressbar">
                 <span
-                  className={`ds-progressbar__fill ${mode === 'done' ? 'is-done' : ''}`}
+                  className={`ds-progressbar__fill ${mode === 'done' ? 'is-done' : ''} ${stalling ? 'is-stalling' : ''}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -280,14 +319,23 @@ function UploadTile({ animate }: { animate: boolean }) {
 const R = 72.5
 const CIRC = 2 * Math.PI * R
 
-function ProgressTile({ animate }: { animate: boolean }) {
+function ProgressTile({ animate, inView }: { animate: boolean; inView: boolean }) {
   const [pct, setPct] = useState(animate ? 0 : 70)
   const [run, setRun] = useState(0)
 
   /* Ease up to 70 %, then hold. The replay button does the resetting, so the
-     effect only ever owns the interval. */
+     effect only ever owns the interval. `inView` comes from the strip as a
+     whole (see DetailStrip below) rather than this tile watching its own
+     position — the rail renders two copies of every tile back to back for
+     the seamless loop, and they sit roughly one screen-width apart. If each
+     copy watched its own visibility, the copy that first drifts into view
+     would animate and settle at 70% while its twin was still sitting at 0%;
+     the loop then "wraps" by swapping which copy is on screen, and the ring
+     would visibly pop between the two states. Gating both copies on the
+     same shared boolean keeps them running in lockstep, so the swap is
+     invisible, the way it's meant to be. */
   useEffect(() => {
-    if (!animate) return
+    if (!animate || !inView) return
     let frame = 0
     const id = window.setInterval(() => {
       frame += 1
@@ -299,7 +347,7 @@ function ProgressTile({ animate }: { animate: boolean }) {
       setPct(Math.round((frame / 55) * 70))
     }, 24)
     return () => window.clearInterval(id)
-  }, [animate, run])
+  }, [animate, inView, run])
 
   return (
     <div className="ds-quota">
@@ -449,7 +497,7 @@ function StepperTile({ animate }: { animate: boolean }) {
 
   useEffect(() => {
     if (!animate || manual) return
-    const id = window.setInterval(() => setCurrent((c) => (c + 1) % (STEPS.length + 1)), 1600)
+    const id = window.setInterval(() => setCurrent((c) => (c + 1) % (STEPS.length + 1)), 1800)
     return () => window.clearInterval(id)
   }, [animate, manual])
 
@@ -475,12 +523,16 @@ function StepperTile({ animate }: { animate: boolean }) {
             }}
           >
             <span className="ds-step__rail">
+              {/* The check and the inner pip are always mounted so they can
+                  cross-fade instead of popping in on a state flip. */}
               <span className="ds-step__dot">
-                {state === 'done' && (
-                  <img src="/ds/b466a.svg" width={17.7723} height={17.7723} alt="" />
-                )}
+                <img src="/ds/b466a.svg" width={15} height={15} alt="" />
               </span>
-              {i < STEPS.length - 1 && <span className="ds-step__line" />}
+              {i < STEPS.length - 1 && (
+                <span className="ds-step__line">
+                  <span className="ds-step__line-fill" />
+                </span>
+              )}
             </span>
             <span className="ds-step__text">
               <span className="ds-step__title">{step.title}</span>
@@ -497,7 +549,7 @@ function StepperTile({ animate }: { animate: boolean }) {
 
 type TileSpec = { n: string; label: string; blobs: Blob[]; body: ReactNode }
 
-function tiles(animate: boolean): TileSpec[] {
+function tiles(animate: boolean, progressInView: boolean): TileSpec[] {
   return [
     {
       n: '01',
@@ -533,7 +585,7 @@ function tiles(animate: boolean): TileSpec[] {
         { src: '/ds/4276f.svg', x: -30, y: 36, w: 102, h: 102 },
         WASH,
       ],
-      body: <ProgressTile animate={animate} />,
+      body: <ProgressTile animate={animate} inView={progressInView} />,
     },
     {
       n: '05',
@@ -731,21 +783,16 @@ function useRail(enabled: boolean) {
 export default function DetailStrip() {
   const reduced = useReducedMotion()
   const animate = !reduced
-  const set = tiles(animate)
   const { viewportRef, railRef, grabbing, setPaused, revealFocus, handlers } = useRail(animate)
+  /* Gates the Progress tile's count-up (see ProgressTile above) on the strip
+     as a whole scrolling into view, once — shared by both rail copies, so
+     they animate in lockstep instead of drifting apart. */
+  const progressInView = useInView(viewportRef, { once: true, amount: 0.3 })
+  const set = tiles(animate, progressInView)
 
   return (
     <div className="ds-block">
       <div className="ds-masthead">
-        <motion.p
-          className="ds-eyebrow"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.7, ease: EASE }}
-        >
-          MYOPERATOR DESIGN SYSTEM
-        </motion.p>
         <motion.h2
           className="ds-title"
           initial={{ opacity: 0, y: 20 }}

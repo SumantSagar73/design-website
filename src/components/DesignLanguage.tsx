@@ -51,9 +51,7 @@ export default function DesignLanguage() {
           transition={{ duration: 0.8, ease: EASE }}
         >
           <h2 className="glyph-title">
-            Driven by
-            <br />
-            possibility
+            Driven by possibility
           </h2>
           <h3 className="glyph-subtitle">The vision</h3>
           <p className="glyph-body">
@@ -95,9 +93,7 @@ export default function DesignLanguage() {
           transition={{ duration: 0.8, ease: EASE }}
         >
           <h2 className="glyph-title">
-            Built for
-            <br />
-            connection
+            Built for connection
           </h2>
           <h3 className="glyph-subtitle">The foundation</h3>
           <p className="glyph-body">
