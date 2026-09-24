@@ -76,6 +76,7 @@ function ButtonTile() {
         className={`ds-btn-primary is-${phase}`}
         onClick={() => phase === 'idle' && setPhase('busy')}
       >
+        <span className="ds-btn-primary__shimmer" aria-hidden="true" />
         {phase === 'busy' ? (
           <span className="ds-btn-primary__spin" aria-hidden="true" />
         ) : (
@@ -87,7 +88,7 @@ function ButtonTile() {
             alt=""
           />
         )}
-        <span>
+        <span className={`ds-btn-primary__text ${phase === 'busy' ? 'is-shimmering' : ''}`}>
           {phase === 'busy' ? 'Creating…' : phase === 'done' ? 'Campaign created' : 'Create Campaign'}
         </span>
       </button>
@@ -176,20 +177,20 @@ function LoadingTile() {
 type UploadMode = 'loop' | 'run' | 'done' | 'empty'
 
 /* Where the bar pauses to "catch its breath" and how long it holds there. */
-const STALL_AT = 42
+const STALL_AT = 45
 const STALL_MS = 1400
-const STEP_MS = 110
+const STEP_MS = 48
 
 function UploadTile({ animate }: { animate: boolean }) {
   const [pct, setPct] = useState(20)
   const [mode, setMode] = useState<UploadMode>(animate ? 'loop' : 'done')
   const [stalling, setStalling] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
 
   /* Idles on a loop until someone drives it, then it runs once and settles.
      On the way up it pauses once, like a real upload catching its breath —
      the bar shows a moving gradient sweep (below) instead of just sitting
-     still — then resumes to completion. A recursive timeout, rather than a
-     plain interval, is what lets it hold mid-sequence like that. */
+     still — then resumes to completion smoothly. */
   useEffect(() => {
     if (mode !== 'loop' && mode !== 'run') return
     let cancelled = false
@@ -214,11 +215,18 @@ function UploadTile({ animate }: { animate: boolean }) {
           return
         }
         stalledThisPass = false
-        setPct(0)
-        timer = window.setTimeout(() => step(0), STEP_MS)
+        // Hold at 100% for 1.8s so user can read complete status, then reset and loop
+        timer = window.setTimeout(() => {
+          setIsResetting(true)
+          setPct(0)
+          timer = window.setTimeout(() => {
+            setIsResetting(false)
+            timer = window.setTimeout(() => step(0), 200)
+          }, 60)
+        }, 1800)
         return
       }
-      const next = Math.min(100, current + 2)
+      const next = Math.min(100, current + 1)
       setPct(next)
       timer = window.setTimeout(() => step(next), STEP_MS)
     }
@@ -301,7 +309,7 @@ function UploadTile({ animate }: { animate: boolean }) {
               </div>
               <div className="ds-progressbar">
                 <span
-                  className={`ds-progressbar__fill ${mode === 'done' ? 'is-done' : ''} ${stalling ? 'is-stalling' : ''}`}
+                  className={`ds-progressbar__fill ${mode === 'done' ? 'is-done' : ''} ${stalling ? 'is-stalling' : ''} ${isResetting ? 'is-resetting' : ''}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -323,30 +331,37 @@ function ProgressTile({ animate, inView }: { animate: boolean; inView: boolean }
   const [pct, setPct] = useState(animate ? 0 : 70)
   const [run, setRun] = useState(0)
 
-  /* Ease up to 70 %, then hold. The replay button does the resetting, so the
-     effect only ever owns the interval. `inView` comes from the strip as a
-     whole (see DetailStrip below) rather than this tile watching its own
-     position — the rail renders two copies of every tile back to back for
-     the seamless loop, and they sit roughly one screen-width apart. If each
-     copy watched its own visibility, the copy that first drifts into view
-     would animate and settle at 70% while its twin was still sitting at 0%;
-     the loop then "wraps" by swapping which copy is on screen, and the ring
-     would visibly pop between the two states. Gating both copies on the
-     same shared boolean keeps them running in lockstep, so the swap is
-     invisible, the way it's meant to be. */
+  /* Ease up to 70%, hold, then reset and loop continuously. */
   useEffect(() => {
     if (!animate || !inView) return
     let frame = 0
-    const id = window.setInterval(() => {
-      frame += 1
-      if (frame >= 55) {
-        setPct(70)
-        window.clearInterval(id)
-        return
-      }
-      setPct(Math.round((frame / 55) * 70))
-    }, 24)
-    return () => window.clearInterval(id)
+    let pauseTimer: number | null = null
+    let intervalId: number | null = null
+
+    const startAnimation = () => {
+      frame = 0
+      intervalId = window.setInterval(() => {
+        frame += 1
+        if (frame >= 55) {
+          setPct(70)
+          if (intervalId !== null) window.clearInterval(intervalId)
+          // Hold at 70% for 2.4 seconds, then reset and loop
+          pauseTimer = window.setTimeout(() => {
+            setPct(0)
+            pauseTimer = window.setTimeout(startAnimation, 350)
+          }, 2400)
+          return
+        }
+        setPct(Math.round((frame / 55) * 70))
+      }, 24)
+    }
+
+    startAnimation()
+
+    return () => {
+      if (intervalId !== null) window.clearInterval(intervalId)
+      if (pauseTimer !== null) window.clearTimeout(pauseTimer)
+    }
   }, [animate, inView, run])
 
   return (

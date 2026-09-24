@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 type StateKey = 'Calm' | 'Active' | 'Alert' | 'Resolve'
 
@@ -48,8 +48,39 @@ const STATES: Record<StateKey, StateConfig> = {
 
 export default function TryOrbitSense() {
   const [active, setActive] = useState<StateKey>('Calm')
-  /* v1 is the live design; v2 is the orbit-showcase arc, side by side to compare. */
-  const [variant, setVariant] = useState<'v1' | 'v2'>('v1')
+  /* v1 is the live design; v2 is the orbit arc; v3 is the orbit rotation. */
+  const [variant, setVariant] = useState<'v1' | 'v2' | 'v3'>('v1')
+  const [hoveredState, setHoveredState] = useState<StateKey | null>(null)
+  const [cursorVisible, setCursorVisible] = useState(false)
+  const [tooltipText, setTooltipText] = useState('')
+  const cursorTagRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (cursorTagRef.current) {
+      cursorTagRef.current.style.left = `${e.clientX}px`
+      cursorTagRef.current.style.top = `${e.clientY}px`
+    }
+  }
+
+  const handleBadgeEnter = (name: StateKey, e: React.MouseEvent) => {
+    setHoveredState(name)
+    setTooltipText(STATES[name].copy)
+    setCursorVisible(true)
+    if (cursorTagRef.current) {
+      cursorTagRef.current.style.left = `${e.clientX}px`
+      cursorTagRef.current.style.top = `${e.clientY}px`
+    }
+  }
+
+  const handleBadgeLeave = () => {
+    setHoveredState(null)
+    setCursorVisible(false)
+  }
+
+  const handleContainerMouseLeave = () => {
+    setHoveredState(null)
+    setCursorVisible(false)
+  }
 
   const st = STATES[active]
   const count = 5
@@ -71,34 +102,66 @@ export default function TryOrbitSense() {
           </p>
         </div>
 
-        {/* Compare the live stage with the orbit-showcase arc. */}
+        {/* Compare the live stage with orbit arc and orbit rotation showcases. */}
         <div className="try-variant-switch" role="tablist" aria-label="Stage design">
-          {(['v1', 'v2'] as const).map((v) => (
+          {([
+            { id: 'v1', label: 'V1 · Rings' },
+            { id: 'v2', label: 'V2 · Orbit arc' },
+            { id: 'v3', label: 'V3 · Orbit rotation' },
+          ] as const).map(({ id, label }) => (
             <button
-              key={v}
+              key={id}
               type="button"
               role="tab"
-              aria-selected={variant === v}
-              className={`try-variant-btn ${variant === v ? 'is-active' : ''}`}
-              onClick={() => setVariant(v)}
+              aria-selected={variant === id}
+              className={`try-variant-btn ${variant === id ? 'is-active' : ''}`}
+              onClick={() => setVariant(id)}
             >
-              {v === 'v1' ? 'V1 · Rings' : 'V2 · Orbit arc'}
+              {label}
             </button>
           ))}
         </div>
 
-        {variant === 'v2' ? (
+        {variant === 'v3' ? (
+          /* ---------------------------------------------- V3: orbit rotation */
+          <div
+            className={`v2-orbit-container theme-${(hoveredState || active).toLowerCase()}`}
+            style={{
+              background: STATES[hoveredState || active].panel,
+            }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleContainerMouseLeave}
+          >
+            {/* Concentric Background Rings */}
+            <div className="v2-ring v2-ring-1" />
+            <div className="v2-ring v2-ring-2" />
+            <div className="v2-ring v2-ring-3" />
+            <div className="v2-ring v2-ring-4" />
+
+            {/* Circular Orbiting Badges */}
+            {stateKeys.map((name) => {
+              const isSelected = name === active
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  className={`v2-orbit-badge v2-pill-${name.toLowerCase()} ${isSelected ? 'is-selected' : ''}`}
+                  onMouseEnter={(e) => handleBadgeEnter(name, e)}
+                  onMouseLeave={handleBadgeLeave}
+                  onClick={() => setActive(name)}
+                  aria-label={`${name}: ${STATES[name].copy}`}
+                >
+                  <span className={`v2-status-dot v2-dot-${name.toLowerCase()}`} />
+                  <span className="v2-badge-label">{name}</span>
+                </button>
+              )
+            })}
+          </div>
+        ) : variant === 'v2' ? (
           /* ---------------------------------------------- V2: orbit arc */
-          /* Background comes from the V1 panel too, so V2 carries the same
-             depth of colour rather than its own washed-out tint. */
           <div className="tryv2-stage" style={{ background: st.panel }}>
-            {/* Backlight is the state's own ring hue, kept faint. */}
             <div className="tryv2-backlight" style={{ background: `${st.ring}0.18)` }} />
 
-            {/* Concentric arcs centred below the card, so only their tops show.
-                They breathe outward at the state's own tempo, and take their
-                colour from the V1 ring palette so both variants read alike.
-                Only the alpha differs per arc, keeping V2's own weighting. */}
             <svg className="tryv2-arcs" viewBox="0 0 1000 480" fill="none" preserveAspectRatio="xMidYMid slice">
               {[
                 { r: 290, alpha: 0.1, width: 1 },
@@ -121,7 +184,6 @@ export default function TryOrbitSense() {
               ))}
             </svg>
 
-            {/* Pills sit on the arc: the outer two ride lower than the inner two. */}
             <div className="tryv2-pills">
               {stateKeys.map((name, i) => {
                 const on = name === active
@@ -230,6 +292,14 @@ export default function TryOrbitSense() {
           </div>
         </div>
         )}
+      </div>
+
+      {/* Dynamic Follow-Cursor Tooltip Tag for V2 */}
+      <div
+        ref={cursorTagRef}
+        className={`v2-cursor-tag ${cursorVisible ? 'is-visible' : ''}`}
+      >
+        {tooltipText}
       </div>
     </section>
   )
