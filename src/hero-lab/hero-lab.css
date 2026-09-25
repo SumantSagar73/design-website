@@ -133,7 +133,7 @@
   color: #22252e;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .hero-lab .ribbon-box {
     width: 104vw;
   }
