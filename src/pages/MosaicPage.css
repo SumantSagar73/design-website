@@ -324,7 +324,7 @@
 
 /* -------------------------------------------------------------- small */
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .mosaic-board {
     width: 94vw;
     height: clamp(640px, 86vh, 900px);
