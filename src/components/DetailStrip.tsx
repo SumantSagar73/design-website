@@ -3,6 +3,29 @@ import { motion, useInView, useReducedMotion } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
+/**
+ * Seeds the CTA's liquid fill at the point where the pointer crossed the
+ * button's edge. The radius is the distance to the farthest corner from that
+ * point, so the circle covers the pill exactly — no overshoot, and the fill
+ * visibly travels from the side the cursor came in on. Run on leave too, so
+ * the ink drains back out towards wherever the pointer left.
+ */
+function seedCtaFill(e: React.PointerEvent<HTMLAnchorElement>) {
+  const el = e.currentTarget
+  const box = el.getBoundingClientRect()
+  const x = e.clientX - box.left
+  const y = e.clientY - box.top
+  const r = Math.max(
+    Math.hypot(x, y),
+    Math.hypot(box.width - x, y),
+    Math.hypot(x, box.height - y),
+    Math.hypot(box.width - x, box.height - y),
+  )
+  el.style.setProperty('--cta-x', `${x}px`)
+  el.style.setProperty('--cta-y', `${y}px`)
+  el.style.setProperty('--cta-r', `${r}px`)
+}
+
 /* Tiles are authored at the Figma frame's native pixel size (392 × 430) and
    the whole rail is scaled down by CSS, so every inner offset below can stay
    at the exact value the design specifies. */
@@ -824,7 +847,7 @@ export default function DetailStrip() {
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.24 }}
         >
-          Drag the strip. Every component here is live — go ahead and use them.
+          See how MyOrbit flows. Every card is an interactive, live component—go ahead and try them.
         </motion.p>
       </div>
 
@@ -865,6 +888,28 @@ export default function DetailStrip() {
             )}
           </div>
         </div>
+      </motion.div>
+
+      {/* CTA below the components */}
+      <motion.div
+        className="ds-cta-wrapper"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
+      >
+        <a
+          href="https://shadcn-react-app.vercel.app/?path=/docs/introduction--docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ds-cta-btn"
+          aria-label="Access the complete MyOrbit Design System here"
+          onPointerEnter={seedCtaFill}
+          onPointerLeave={seedCtaFill}
+        >
+          <span>Access the complete MyOrbit Design System here</span>
+          <span className="ds-cta-arrow" aria-hidden="true">→</span>
+        </a>
       </motion.div>
     </div>
   )

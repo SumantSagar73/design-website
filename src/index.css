@@ -1457,6 +1457,7 @@ ol {
 }
 
 /* -------------------------------------------------- V3: Orbit Rotation stage */
+/* -------------------------------------------------- V3: Orbit Rotation stage */
 .v2-orbit-container {
   position: relative;
   display: flex;
@@ -1472,27 +1473,183 @@ ol {
   transition: background 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Concentric Dashed Ring Tracks */
+/* Ambient Radar / Energy Field linking all 4 rings */
+.v3-radar-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 280deg,
+    rgba(255, 255, 255, 0.04) 320deg,
+    rgba(255, 255, 255, 0.28) 350deg,
+    rgba(255, 255, 255, 0.45) 360deg
+  );
+  pointer-events: none;
+  animation: v3-radar-rotate 18s linear infinite;
+  mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 25%, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 25%, transparent 72%);
+  opacity: 0.75;
+}
+
+@keyframes v3-radar-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Concentric Dashed Ring Tracks with individual state colors */
 .v2-ring {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1.5px dashed rgba(43, 187, 201, 0.35);
   pointer-events: none;
-  transition: border-color 0.5s ease;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
 }
 
-.theme-calm .v2-ring { border-color: rgba(43, 187, 201, 0.38); }
-.theme-active .v2-ring { border-color: rgba(17, 152, 168, 0.38); }
-.theme-alert .v2-ring { border-color: rgba(180, 120, 20, 0.38); }
-.theme-resolve .v2-ring { border-color: rgba(20, 120, 100, 0.38); }
+.v2-ring-1 {
+  width: 150px;
+  height: 150px;
+  border: 1.5px dashed rgba(43, 187, 201, 0.35);
+} /* Calm */
 
-.v2-ring-1 { width: 150px; height: 150px; } /* Calm */
-.v2-ring-2 { width: 240px; height: 240px; } /* Active */
-.v2-ring-3 { width: 330px; height: 330px; } /* Alert */
-.v2-ring-4 { width: 420px; height: 420px; } /* Resolve */
+.v2-ring-2 {
+  width: 240px;
+  height: 240px;
+  border: 1.5px dashed rgba(17, 152, 168, 0.35);
+} /* Active */
+
+.v2-ring-3 {
+  width: 330px;
+  height: 330px;
+  border: 1.5px dashed rgba(180, 120, 20, 0.35);
+} /* Alert */
+
+.v2-ring-4 {
+  width: 420px;
+  height: 420px;
+  border: 1.5px dashed rgba(20, 120, 100, 0.35);
+} /* Resolve */
+
+.v2-ring.is-active-track {
+  opacity: 1;
+  border-style: solid;
+  border-width: 1.75px;
+}
+.v2-ring-1.is-active-track {
+  border-color: rgba(43, 187, 201, 0.85);
+  box-shadow: 0 0 16px rgba(43, 187, 201, 0.3);
+}
+.v2-ring-2.is-active-track {
+  border-color: rgba(17, 152, 168, 0.85);
+  box-shadow: 0 0 16px rgba(17, 152, 168, 0.3);
+}
+.v2-ring-3.is-active-track {
+  border-color: rgba(180, 120, 20, 0.85);
+  box-shadow: 0 0 16px rgba(180, 120, 20, 0.3);
+}
+.v2-ring-4.is-active-track {
+  border-color: rgba(20, 120, 100, 0.85);
+  box-shadow: 0 0 16px rgba(20, 120, 100, 0.3);
+}
+
+/* Central Gravitational Nucleus Hub */
+.v3-core-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.v3-core-wave {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  animation: v3-core-pulse 3.8s cubic-bezier(0.15, 0.85, 0.35, 1) infinite;
+}
+
+.v3-core-wave-1 {
+  width: 72px;
+  height: 72px;
+}
+
+.v3-core-wave-2 {
+  width: 72px;
+  height: 72px;
+  animation-delay: 1.9s;
+}
+
+@keyframes v3-core-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+    border-color: rgba(255, 255, 255, 0);
+  }
+}
+
+.v3-core-sphere {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: box-shadow 0.5s ease, transform 0.3s ease;
+  user-select: none;
+}
+
+.v3-core-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  animation: v3-logo-spin 24s linear infinite;
+}
+
+@keyframes v3-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.v3-core-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1e293b;
+  line-height: 1;
+}
 
 /* Circular Orbiting Badges */
 .v2-orbit-badge {
@@ -1507,16 +1664,33 @@ ol {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 10px 25px -5px rgba(15, 23, 42, 0.14),
+    0 2px 6px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.9);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
   z-index: 10;
+}
+
+/* State-specific halo on badges */
+.v2-pill-calm {
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 0 16px -2px rgba(43, 187, 201, 0.35);
+}
+.v2-pill-active {
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 0 16px -2px rgba(17, 152, 168, 0.35);
+}
+.v2-pill-alert {
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 0 16px -2px rgba(180, 120, 20, 0.35);
+}
+.v2-pill-resolve {
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 0 16px -2px rgba(20, 120, 100, 0.35);
 }
 
 /* Pause all orbital movement on hover */
@@ -1527,13 +1701,24 @@ ol {
 .v2-orbit-badge:hover {
   z-index: 30;
   background: #ffffff;
-  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.25), 0 0 0 2px #0f172a;
   animation-play-state: paused;
+}
+.v2-pill-calm:hover {
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.22), 0 0 24px rgba(43, 187, 201, 0.6), 0 0 0 2px #0f172a;
+}
+.v2-pill-active:hover {
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.22), 0 0 24px rgba(17, 152, 168, 0.6), 0 0 0 2px #0f172a;
+}
+.v2-pill-alert:hover {
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.22), 0 0 24px rgba(180, 120, 20, 0.6), 0 0 0 2px #0f172a;
+}
+.v2-pill-resolve:hover {
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.22), 0 0 24px rgba(20, 120, 100, 0.6), 0 0 0 2px #0f172a;
 }
 
 .v2-orbit-badge.is-selected {
-  border-color: rgba(15, 23, 42, 0.2);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.16), 0 0 0 1.5px rgba(15, 23, 42, 0.15);
+  border-color: rgba(15, 23, 42, 0.25);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.16), 0 0 0 2px rgba(15, 23, 42, 0.2);
 }
 
 /* Orbital Animations with constant upright posture */
@@ -1586,6 +1771,59 @@ ol {
   font-weight: 600;
   color: #0f172a;
   line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+/* Anchored Bottom Statement Copy Pill */
+.v3-caption-pill {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
+  z-index: 20;
+  pointer-events: none;
+  animation: v3-caption-fade 0.35s var(--ease);
+}
+
+@keyframes v3-caption-fade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.v3-caption-state {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.v3-caption-divider {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.v3-caption-copy {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
   letter-spacing: -0.01em;
 }
 
@@ -1645,13 +1883,22 @@ ol {
   .v2-ring-3 { width: 240px; height: 240px; }
   .v2-ring-4 { width: 305px; height: 305px; }
   
+  .v3-radar-sweep { width: 310px; height: 310px; }
+  .v3-core-sphere { width: 50px; height: 50px; }
+  .v3-core-logo { width: 17px; height: 17px; }
+  .v3-core-label { font-size: 8px; }
+  .v3-core-wave-1, .v3-core-wave-2 { width: 54px; height: 54px; }
+  .v3-caption-pill { bottom: 12px; padding: 7px 14px; gap: 6px; }
+  .v3-caption-state { font-size: 11.5px; }
+  .v3-caption-copy { font-size: 11.5px; }
+  
   .v2-orbit-badge {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     gap: 2px;
   }
   .v2-badge-label {
-    font-size: 9.5px;
+    font-size: 9px;
   }
   .v2-status-dot {
     width: 6px;
@@ -1988,11 +2235,11 @@ ol {
 }
 
 .glyph-copy {
-  padding-top: clamp(24px, 5vw, 80px);
+  padding-top: clamp(8px, 1.6vw, 28px);
 }
 
 .glyph-title {
-  margin: 0 0 clamp(36px, 4vw, 60px);
+  margin: 0 0 clamp(16px, 1.4vw, 24px);
   font-size: clamp(40px, 3.6vw, 62px);
   font-weight: 500;
   line-height: 1.02;
@@ -2010,7 +2257,7 @@ ol {
 
 .glyph-body {
   margin: 0;
-  max-width: 640px;
+  max-width: 46ch;
   font-size: clamp(16px, 1.2vw, 20px);
   line-height: 1.5;
   color: #4a5a78;
@@ -2241,9 +2488,104 @@ ol {
 
 .ds-hint {
   margin: 14px 0 0;
-  font-size: 13.5px;
-  line-height: 20px;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.6;
   color: var(--ink-2);
+}
+
+.ds-cta-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: clamp(36px, 4vw, 56px);
+  position: relative;
+  z-index: 5;
+}
+
+.ds-cta-btn {
+  /* Seeded by the pointer handler; the defaults keep it sane before first hover. */
+  --cta-x: 50%;
+  --cta-y: 50%;
+  --cta-r: 0px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s var(--ease);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* The ink pool. It is seeded at the point where the cursor crossed the border
+   and sized to reach the farthest corner from there, so the fill always arrives
+   from the side you came in on and stops exactly at full coverage. A negative
+   z-index inside the button's own stacking context puts it over the white
+   background but under the label. */
+.ds-cta-btn::before {
+  content: '';
+  position: absolute;
+  top: var(--cta-y);
+  left: var(--cta-x);
+  width: calc(var(--cta-r) * 2);
+  height: calc(var(--cta-r) * 2);
+  margin: calc(var(--cta-r) * -1) 0 0 calc(var(--cta-r) * -1);
+  border-radius: 50%;
+  background: #0f172a;
+  transform: scale(0);
+  transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ds-cta-btn:hover::before,
+.ds-cta-btn:focus-visible::before {
+  transform: scale(1);
+}
+
+.ds-cta-btn:hover,
+.ds-cta-btn:focus-visible {
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+  transform: translateY(-1px);
+  /* Lags the fill slightly so letters flip once the ink is beneath them. */
+  transition:
+    color 0.2s var(--ease) 0.14s,
+    border-color 0.3s var(--ease),
+    box-shadow 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.ds-cta-btn .ds-cta-arrow {
+  display: inline-block;
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.25s var(--ease);
+}
+
+.ds-cta-btn:hover .ds-cta-arrow,
+.ds-cta-btn:focus-visible .ds-cta-arrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-cta-btn::before {
+    transition: none;
+  }
+  .footer-play:hover::after,
+  .footer-play:focus-visible::after {
+    animation: none;
+  }
 }
 
 /* Full-bleed past the section gutters; the rail keeps the design's own
@@ -3677,8 +4019,8 @@ ol {
 }
 
 .footer-head,
-.footer-meta,
-.footer-hint {
+.footer-rule,
+.footer-meta {
   position: relative;
   z-index: 1;
   /* So a drag that starts on the copy still reaches the canvas. */
@@ -3713,44 +4055,105 @@ ol {
   color: rgba(10, 11, 16, 0.22);
 }
 
+/* CTA, odds and instruction read as one block, not three scattered bits. */
 .footer-pitch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
   text-align: right;
 }
 
 .footer-pitch p {
   margin: 0;
+}
+
+.footer-pitch__cta {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.34em;
   font-size: clamp(20px, 2.4vw, 34px);
   line-height: 1.28;
   letter-spacing: -0.02em;
   color: var(--ink-2);
 }
 
-/* A coloured highlight chip, not plain underlined text — it needs to read
-   as the one clickable word in the sentence, not just more copy. */
+/* A step down from the CTA so the hierarchy inside the block is legible. */
+.footer-pitch__odds {
+  font-size: clamp(15px, 1.35vw, 19px);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink-3);
+}
+
+/* A solid chip, not a tinted one — it has to read as the single clickable
+   thing in the footer, competing with a live game canvas behind it. */
 .footer-play {
-  padding: 0.05em 0.42em 0.12em;
-  margin: 0 0.02em;
+  padding: 0.24em 0.72em 0.3em;
   font: inherit;
-  font-weight: 600;
-  color: #3c4a9e;
-  background: rgba(60, 74, 158, 0.14);
+  font-size: 0.62em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: #3c4a9e;
   border: 0;
-  border-radius: 0.32em;
+  border-radius: 0.5em;
   text-decoration: none;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition:
     background-color 0.2s var(--ease),
-    color 0.2s var(--ease),
     transform 0.2s var(--ease);
 }
 
+/* A specular band that crosses the chip on hover — it has to catch the eye
+   against a canvas that is already moving behind it. */
+.footer-play::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+  transform: translateX(-180%) skewX(-18deg);
+  pointer-events: none;
+}
+
+.footer-play:hover::after,
+.footer-play:focus-visible::after {
+  animation: footer-play-shine 0.8s var(--ease);
+}
+
+@keyframes footer-play-shine {
+  from {
+    transform: translateX(-180%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(380%) skewX(-18deg);
+  }
+}
+
 .footer-play:hover {
-  background: rgba(60, 74, 158, 0.22);
-  color: #2f3b80;
+  background: #2f3b80;
 }
 
 .footer-play:active {
   transform: scale(0.96);
+}
+
+/* Splits the two zones: "come play" above, "site info" below. margin-top:auto
+   drops the pair to the foot of the panel, whatever height the arena takes. */
+.footer-rule {
+  height: 1px;
+  margin-top: auto;
+  background: rgba(10, 11, 16, 0.1);
 }
 
 .footer-meta {
@@ -3759,7 +4162,7 @@ ol {
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
-  margin-top: clamp(20px, 3vh, 36px);
+  padding-top: clamp(16px, 2.2vh, 24px);
   font-size: clamp(14px, 1.15vw, 17px);
   color: var(--ink-3);
 }
@@ -3769,12 +4172,43 @@ ol {
 }
 
 .footer-socials a {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
   color: var(--ink-2);
-  transition: color 0.2s var(--ease);
+  transition: color 0.3s var(--ease);
 }
 
-.footer-socials a:hover {
+/* Same underline idiom as the top nav: wipes in from the left on hover and
+   retreats to the right on leave, rather than snapping away. */
+.footer-socials a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.6s var(--ease);
+}
+
+.footer-socials a:hover,
+.footer-socials a:focus-visible {
   color: var(--ink);
+}
+
+.footer-socials a:hover::after,
+.footer-socials a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-socials a::after {
+    transition: none;
+  }
 }
 
 .footer-socials__sep {
@@ -3793,11 +4227,28 @@ ol {
 }
 
 .footer-hint {
-  margin: auto 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 7px;
   font-size: 13px;
   letter-spacing: 0.01em;
-  color: var(--ink-3);
-  pointer-events: none;
+  color: rgba(10, 11, 16, 0.42);
+  transition: opacity 0.3s var(--ease);
+}
+
+.footer-hint__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Hidden but still occupying its row, so starting a game doesn't shift the
+   block above it. */
+.footer-hint.is-quiet {
+  opacity: 0;
 }
 
 @media (max-width: 700px) {
@@ -3805,7 +4256,17 @@ ol {
     flex-direction: column;
   }
   .footer-pitch {
+    align-items: flex-start;
     text-align: left;
+  }
+  .footer-pitch__cta,
+  .footer-hint {
+    justify-content: flex-start;
+  }
+  .footer-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }
 

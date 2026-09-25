@@ -108,12 +108,35 @@ export default function Navbar() {
     }
   }, [])
 
-  // Switch between the flush top bar and the floating card
+  /* Switch between the flush top bar and the floating card. The bar stays flat
+     and attached for the whole hero and only lifts off once the hero's bottom
+     edge has passed under it — tying the switch to the section rather than to a
+     fixed scroll distance, so it holds however tall the hero renders. */
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 24)
+    /* Height of the bar in its flush state, so the hero is genuinely gone
+       behind it before the card appears. */
+    const FLUSH_H = 72
+    /* Keeps it from flickering when a scroll parks right on the boundary. */
+    const DEADBAND = 24
+
+    const update = () => {
+      const hero = document.getElementById('hero')
+      if (!hero) {
+        setScrolled(window.scrollY > 24)
+        return
+      }
+      const { bottom } = hero.getBoundingClientRect()
+      setScrolled((prev) => (prev ? bottom <= FLUSH_H + DEADBAND : bottom <= FLUSH_H))
+    }
+
     update()
     window.addEventListener('scroll', update, { passive: true })
-    return () => window.removeEventListener('scroll', update)
+    /* The hero is viewport-sized, so its bottom moves when the window does. */
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
   }, [])
 
   // Scrollspy to detect currently visible section
