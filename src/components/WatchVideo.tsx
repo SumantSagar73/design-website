@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 
-import ribbonUrl from '../assets/backgorun-ribbon.png'
-
 /**
  * The video to play. The first of these that is set wins.
  *  - src: a direct video file, e.g. '/orbit.mp4' in public/. Preferred — it is
@@ -15,8 +13,8 @@ import ribbonUrl from '../assets/backgorun-ribbon.png'
  */
 const VIDEO = {
   src: '',
-  youtubeId: '',
-  driveId: '1BTkpJxyg3Aw3OZ9wcFSKp__gXwG4Oeus',
+  youtubeId: '-7AwvxNwz4U',
+  driveId: '',
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -66,16 +64,14 @@ export default function WatchVideo() {
           )
         ) : (
           <button type="button" className="video-poster" onClick={play} aria-label="Play the MyOrbit video">
-            <img className="video-poster__ribbon" src={ribbonUrl} alt="" aria-hidden="true" />
-            {/* White text with a difference blend: it reads near-black on the
-                pale backdrop and inverts where it crosses the ribbon. */}
-            <span className="video-poster__wordmark" aria-hidden="true">
-              MyOrbit
-            </span>
+            <span className="video-poster__sheen" aria-hidden="true" />
+            {/* Sized like a real player's control rather than a hero element:
+                big enough to hit, small enough that the poster does not read as
+                a second video player sitting inside the first. The glass and
+                its shine are the same language the navbar pill uses. */}
             <span className="video-poster__play" aria-hidden="true">
-              <svg viewBox="0 0 68 48" width="68" height="48">
-                <rect width="68" height="48" rx="12" fill="#22252e" />
-                <path d="M27 34.3 45 24 27 13.7z" fill="#fff" />
+              <svg className="video-poster__play-icon" viewBox="0 0 24 24">
+                <path d="M8 5 19 12 8 19z" fill="currentColor" />
               </svg>
             </span>
           </button>

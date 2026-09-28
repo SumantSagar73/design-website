@@ -21,8 +21,32 @@
   --ink-2: #5f6470;
   --ink-3: #8a8f9c;
   --line: rgba(10, 11, 16, 0.55);
-  --gutter: clamp(20px, 5.6vw, 88px);
+  /* The page spine. Every section's side padding is this and nothing else --
+     before, four competing scales (2vw / 2.5vw / 3.5vw / 5.6vw) put section
+     left edges at 29, 36, 46 and 81px on the same screen. */
+  --gutter: clamp(20px, 3.5vw, 46px);
+  /* The width content centres within. Sections that want a narrower measure
+     (a centred paragraph) set their own; nothing sets a wider one. */
+  --content-max: 1520px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Type scale -------------------------------------------------------
+     Seven steps, one per role. Before this, 14 distinct sizes were in use and
+     the four peer section headings landed at 54/52/50/48 — close enough to
+     read as a mistake rather than a hierarchy. A role gets a token; a
+     component does not get its own size. */
+  --text-display-xl: clamp(48px, 8.2vw, 118px);  /* hero only            */
+  --text-display-l: clamp(38px, 6.4vw, 92px);    /* footer wordmark only */
+  --text-heading: clamp(34px, 3.9vw, 52px);      /* every section heading */
+  --text-subhead: clamp(20px, 2.4vw, 34px);
+  --text-title: clamp(20px, 1.6vw, 23px);
+  --text-body: clamp(16px, 1.2vw, 17px);
+  --text-meta: clamp(13px, 1.1vw, 14px);
+
+  /* Leading belongs to the size band, not the component. */
+  --leading-display: 0.98;
+  --leading-heading: 1.12;
+  --leading-body: 1.5;
   --font: 'Inter Tight Variable', 'Inter Tight', 'Geist', 'Helvetica Neue', system-ui, sans-serif;
 
   color-scheme: light;
@@ -757,7 +781,7 @@ ol {
   z-index: 999;
   display: flex;
   justify-content: center;
-  padding: 18px clamp(16px, 2.5vw, 36px) 0;
+  padding: 18px var(--gutter) 0;
   pointer-events: none;
   transition: padding 0.45s var(--ease);
 }
@@ -765,7 +789,7 @@ ol {
 .floating-navbar {
   pointer-events: auto;
   width: 100%;
-  max-width: 1420px;
+  max-width: var(--content-max);
   height: 64px;
   padding: 0 clamp(20px, 2.5vw, 32px);
   display: flex;
@@ -864,7 +888,7 @@ ol {
 .navbar-link {
   position: relative;
   padding: 8px 16px;
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: -0.01em;
   color: #434b60;
@@ -1084,7 +1108,7 @@ ol {
 }
 
 .section-container {
-  max-width: 1160px;
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 
@@ -1127,17 +1151,14 @@ ol {
   border-top: none;
   padding-top: clamp(100px, 14vh, 160px);
   padding-bottom: clamp(90px, 13vh, 150px);
-  /* Narrower side padding than .content-section's --gutter, so this section
-     starts on the same left edge as Try MyOrbit rather than sitting
-     indented from it. */
-  padding-left: clamp(20px, 3.5vw, 46px);
-  padding-right: clamp(20px, 3.5vw, 46px);
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
 }
 
 /* Wide enough that the container never re-centres inside the padding — the
     content then begins exactly at the padding edge. Matches .try-outer-container. */
 .philosophy-manifesto-container {
-  max-width: 1520px;
+  max-width: var(--content-max);
 }
 
 .manifesto-top-bar {
@@ -1160,9 +1181,9 @@ ol {
 .manifesto-text.left-aligned {
   margin: 0;
   text-align: left;
-  font-size: clamp(32px, 4.2vw, 54px);
+  font-size: var(--text-heading);
   font-weight: 500;
-  line-height: 1.26;
+  line-height: var(--leading-heading);
   letter-spacing: -0.035em;
   color: #0b0e18;
   max-width: 1120px;
@@ -1211,7 +1232,7 @@ ol {
 
 .try-section-wrapper {
   position: relative;
-  padding: clamp(100px, 14vh, 160px) clamp(20px, 3.5vw, 46px) clamp(110px, 15vh, 170px);
+  padding: clamp(100px, 14vh, 160px) var(--gutter) clamp(110px, 15vh, 170px);
   /* The flat panel colour lives on ::before, not here, so it can be faded at
      both edges. Painted directly it met the page gradient as a hard line at
      the top and bottom of the section. */
@@ -1231,7 +1252,7 @@ ol {
 .try-outer-container {
   position: relative;
   z-index: 1;
-  max-width: 1520px;
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 
@@ -1246,9 +1267,9 @@ ol {
 
 .try-headline-left {
   margin: 0;
-  font-size: clamp(34px, 3.8vw, 48px);
+  font-size: var(--text-heading);
   font-weight: 500;
-  line-height: 1.12;
+  line-height: var(--leading-heading);
   letter-spacing: -0.038em;
   color: #0b0e18;
   max-width: 720px;
@@ -1434,8 +1455,8 @@ ol {
   margin: 0;
   max-width: 32rem;
   text-align: center;
-  font-size: clamp(16px, 1.4vw, 18px);
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   letter-spacing: -0.01em;
   color: #334155;
   animation: tryv2-caption-in 0.3s var(--ease);
@@ -2238,7 +2259,7 @@ ol {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(44px, 4.4vw, 84px);
   align-items: start;
-  max-width: 1680px;
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 
@@ -2248,16 +2269,16 @@ ol {
 
 .glyph-title {
   margin: 0 0 clamp(16px, 1.4vw, 24px);
-  font-size: clamp(40px, 3.6vw, 62px);
+  font-size: var(--text-heading);
   font-weight: 500;
-  line-height: 1.02;
+  line-height: var(--leading-heading);
   letter-spacing: -0.05em;
   color: var(--ink);
 }
 
 .glyph-subtitle {
   margin: 0 0 14px;
-  font-size: clamp(20px, 1.6vw, 27px);
+  font-size: var(--text-title);
   font-weight: 400;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -2266,8 +2287,8 @@ ol {
 .glyph-body {
   margin: 0;
   max-width: 46ch;
-  font-size: clamp(16px, 1.2vw, 20px);
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: #4a5a78;
 }
 
@@ -2316,7 +2337,9 @@ ol {
 
 /* Second glyph row, mirrored: panel on the left, copy on the right. */
 .glyph-grid--reverse {
-  margin-top: clamp(64px, 8vw, 128px);
+  /* 115px between two ~600px cards read as a break between sections rather
+     than two halves of one idea. */
+  margin-top: clamp(40px, 4vw, 64px);
 }
 
 .glyph-grid--reverse .flute-panel {
@@ -2496,9 +2519,10 @@ ol {
 
 .ds-title {
   margin: 0;
-  font-size: clamp(30px, 3.5vw, 50px);
-  line-height: 1.24;
-  font-weight: 600;
+  font-size: var(--text-heading);
+  line-height: var(--leading-heading);
+  /* Was the only 600 among the section headings. */
+  font-weight: 500;
   letter-spacing: -1.4px;
   color: #252c3c;
 }
@@ -2599,6 +2623,7 @@ ol {
   .ds-cta-btn::before {
     transition: none;
   }
+  .footer-play,
   .footer-play:hover::after,
   .footer-play:focus-visible::after {
     animation: none;
@@ -3905,17 +3930,19 @@ ol {
 .video-section {
   scroll-margin-top: 96px;
   background: #f6f6f6;
-  padding: clamp(90px, 12vh, 140px) clamp(16px, 6.25vw, 120px) clamp(110px, 15vh, 170px);
+  /* The frame is 16:9 at full width, so its height is fixed by the width —
+     the section's own padding is the only slack. Trimmed from 108/135 so the
+     block lands around one viewport instead of 1.1x it. */
+  padding: clamp(56px, 7vh, 88px) var(--gutter) clamp(64px, 8vh, 100px);
 }
 
 .video-frame {
   position: relative;
-  /* 16:9 at full width runs taller than the viewport, which pushed the top of
-     the player up behind the fixed navbar. Cap the WIDTH to whatever keeps the
-     derived height inside the viewport — capping height instead would just
-     squash the box, since width: 100% already fixes one side. */
-  width: min(100%, calc((100vh - 200px) * 16 / 9));
-  width: min(100%, calc((100svh - 200px) * 16 / 9));
+  /* Exactly the navbar's box: the section carries --gutter, and this matches
+     its --content-max cap, so the player's edges line up with the bar above
+     it rather than sitting inset from the page spine. */
+  width: 100%;
+  max-width: var(--content-max);
   margin-inline: auto;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -3948,50 +3975,119 @@ ol {
   background: linear-gradient(180deg, #f5f6fc 0%, #f2f3fa 60%, #eceef9 100%);
 }
 
-/* The MyOrbit ribbon — the same art the hero is built around. */
-.video-poster__ribbon {
+/* A wash across the poster so the wordmark and the disc sit on something,
+   without hiding the ribbon art underneath. */
+.video-poster__sheen {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  z-index: 0;
   pointer-events: none;
-  user-select: none;
+  background:
+    radial-gradient(70% 55% at 50% 64%, rgba(255, 255, 255, 0.5), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, transparent 38%, rgba(18, 24, 48, 0.07) 100%);
 }
 
-.video-poster__wordmark {
-  position: relative;
-  z-index: 1;
-  font-size: 15cqw;
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1;
-  color: #fff;
-  mix-blend-mode: difference;
-  pointer-events: none;
-  user-select: none;
-}
-
+/* The play control: a frosted disc using the same blur + saturate the navbar
+   and the state pills use, so it reads as our glass rather than a player's
+   default chrome. */
 .video-poster__play {
   position: absolute;
   z-index: 2;
-  /* Below the wordmark: centred, the badge reads as part of the "O". */
-  top: 72%;
+  top: 50%;
   left: 50%;
-  width: clamp(52px, 5.4cqw, 74px);
+  /* ~4% of the frame, the proportion a real player uses. At 11cqw it filled
+     the poster and read as a second video player nested in the first. */
+  width: clamp(48px, 4.4cqw, 72px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  color: #1b1f2a;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 12px 32px -10px rgba(18, 24, 48, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 -10px 20px -14px rgba(18, 24, 48, 0.4) inset;
   transform: translate(-50%, -50%);
-  transition: transform 0.3s var(--ease);
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+  transition:
+    transform 0.3s var(--ease),
+    background-color 0.3s var(--ease),
+    box-shadow 0.3s var(--ease);
 }
 
-.video-poster__play svg {
+/* The fixed specular highlight — this is what makes it read as glass rather
+   than as a flat translucent circle. */
+.video-poster__play::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(68% 52% at 30% 16%, rgba(255, 255, 255, 0.9), transparent 70%),
+    radial-gradient(58% 38% at 72% 94%, rgba(255, 255, 255, 0.4), transparent 72%);
+}
+
+/* The travelling shine, same idiom as .footer-play and the navbar pill. */
+.video-poster__play::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 46%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    transparent 100%
+  );
+  transform: translateX(-190%) skewX(-18deg);
+}
+
+.video-poster__play-icon {
+  position: relative;
+  z-index: 1;
   display: block;
-  width: 100%;
+  /* Roughly YouTube's triangle-to-button ratio. */
+  width: 38%;
   height: auto;
+  /* Optical centring: a triangle's visual mass sits left of its bounding box. */
+  margin-left: 6%;
 }
 
-.video-poster:hover .video-poster__play {
+.video-poster:hover .video-poster__play,
+.video-poster:focus-visible .video-poster__play {
   transform: translate(-50%, -50%) scale(1.08);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 18px 40px -10px rgba(18, 24, 48, 0.34),
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -10px 20px -14px rgba(18, 24, 48, 0.4) inset;
+}
+
+.video-poster:hover .video-poster__play::after,
+.video-poster:focus-visible .video-poster__play::after {
+  animation: video-play-shine 0.9s var(--ease);
+}
+
+@keyframes video-play-shine {
+  from {
+    transform: translateX(-190%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-poster:hover .video-poster__play::after,
+  .video-poster:focus-visible .video-poster__play::after {
+    animation: none;
+  }
 }
 
 .video-poster:focus-visible {
@@ -4058,9 +4154,9 @@ ol {
   margin: 0;
   /* A touch down from the full clamp(44px, 7.4vw, 108px) — still the
      biggest text on the page, just not quite so overwhelming. */
-  font-size: clamp(38px, 6.4vw, 92px);
+  font-size: var(--text-display-l);
   font-weight: 400;
-  line-height: 0.96;
+  line-height: var(--leading-display);
   letter-spacing: -0.045em;
   color: rgba(10, 11, 16, 0.22);
 }
@@ -4088,7 +4184,7 @@ ol {
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 0.34em;
-  font-size: clamp(20px, 2.4vw, 34px);
+  font-size: var(--text-subhead);
   line-height: 1.28;
   letter-spacing: -0.02em;
   color: var(--ink-2);
@@ -4096,8 +4192,8 @@ ol {
 
 /* A step down from the CTA so the hierarchy inside the block is legible. */
 .footer-pitch__odds {
-  font-size: clamp(15px, 1.35vw, 19px);
-  line-height: 1.4;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   letter-spacing: -0.01em;
   color: var(--ink-3);
 }
@@ -4105,22 +4201,62 @@ ol {
 /* A solid chip, not a tinted one — it has to read as the single clickable
    thing in the footer, competing with a live game canvas behind it. */
 .footer-play {
-  padding: 0.24em 0.72em 0.3em;
+  /* Was a 45x23px solid indigo chip — the only saturated thing in a
+     desaturated footer, and far too small to read as the panel's one call to
+     action. Now a proper pill carrying the same glass + shine as the video
+     control, so both "play" affordances on the page speak one language. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 1.05em 0.5em 0.85em;
   font: inherit;
-  font-size: 0.62em;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #fff;
-  background: #3c4a9e;
-  border: 0;
-  border-radius: 0.5em;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #22284a;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  box-shadow:
+    0 10px 26px -10px rgba(24, 30, 66, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset;
   text-decoration: none;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  /* The nudge that makes the game discoverable at all — nothing else in the
+     footer moves, so a slow lift is enough to draw the eye. */
+  animation: footer-play-bounce 2.8s var(--ease) infinite;
   transition:
     background-color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
     transform 0.2s var(--ease);
+}
+
+/* A triangle before the label, so it reads as "play" before it is read. */
+.footer-play::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0.34em 0 0.34em 0.56em;
+  border-color: transparent transparent transparent currentColor;
+  flex: none;
+}
+
+@keyframes footer-play-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  45% {
+    transform: translateY(-3px) scale(1.035);
+  }
+  70% {
+    transform: translateY(1px) scale(0.995);
+  }
 }
 
 /* A specular band that crosses the chip on hover — it has to catch the eye
@@ -4154,12 +4290,20 @@ ol {
   }
 }
 
-.footer-play:hover {
-  background: #2f3b80;
+.footer-play:hover,
+.footer-play:focus-visible {
+  /* Cleared, not paused: a paused animation still pins its transform. */
+  animation: none;
+  transform: translateY(-2px) scale(1.04);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 16px 32px -12px rgba(24, 30, 66, 0.42),
+    0 1px 0 rgba(255, 255, 255, 1) inset;
 }
 
 .footer-play:active {
-  transform: scale(0.96);
+  animation: none;
+  transform: translateY(0) scale(0.97);
 }
 
 /* Splits the two zones: "come play" above, "site info" below. margin-top:auto
@@ -4177,7 +4321,7 @@ ol {
   gap: 24px;
   flex-wrap: wrap;
   padding-top: clamp(16px, 2.2vh, 24px);
-  font-size: clamp(14px, 1.15vw, 17px);
+  font-size: var(--text-meta);
   color: var(--ink-3);
 }
 
@@ -4245,7 +4389,7 @@ ol {
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 7px;
-  font-size: 13px;
+  font-size: var(--text-meta);
   letter-spacing: 0.01em;
   color: rgba(10, 11, 16, 0.42);
   transition: opacity 0.3s var(--ease);
